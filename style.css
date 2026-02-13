@@ -66,7 +66,7 @@ color:#00f5ff;
 
 /* ========= HERO ========= */
 .hero{
-height:100vh;
+height:60vh;
 display:flex;
 flex-direction:column;
 justify-content:center;
@@ -224,11 +224,14 @@ pointer-events:auto;
 
 
 @media only screen and (max-width: 720px){
+    header{
+        padding: 15px 20px;
+    }
     .logo{
-        font-size:13px;
+        font-size: 14px;
     }
     nav a{
-        font-size: 10px;
+        font-size: 12px;
     }
 }
 

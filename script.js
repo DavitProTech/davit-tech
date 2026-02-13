@@ -119,3 +119,16 @@ adminToggle.addEventListener("click", () => {
   adminBox.classList.toggle("show");
 });
 
+// ========= HERO CTA SCROLL =========
+const heroCta = document.querySelector("#hero .cta-btn");
+const header = document.querySelector("header");
+if (heroCta) {
+  heroCta.addEventListener("click", (e) => {
+    const target = document.getElementById("services");
+    if (!target) return;
+    const headerHeight = header ? header.offsetHeight : 0;
+    const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
+    window.scrollTo({ top, behavior: "smooth" });
+  });
+}
+
