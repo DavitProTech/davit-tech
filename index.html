@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ka">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Davit-Tech</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Davit-Tech</div>
+        <nav>
+            <a href="#services">სერვისები</a>
+            <a href="#order">შეკვეთა</a>
+            <a href="#adminPanel" id="adminToggle">Admin</a>
+        </nav>
+    </header>
+
+    <section class="hero" id="hero">
+        <h1>Davit-Tech Service</h1>
+        <p>მაღალი კლასის ტექნიკური მომსახურება. სწრაფი, სუფთა და პროფესიონალური შედეგი.</p>
+        <button class="cta-btn">დარეკე ახლა</button></a>
+    </section>
+
+    <section class="section" id="services">
+        <h2>ჩვენი სერვისები</h2>
+        <div class="cards">
+            <div class="card"><i>💻</i>
+                <h3>Windows ინსტალაცია</h3>
+                <p>სუფთა სისტემა + ოპტიმიზაცია</p>
+            </div>
+            <div class="card"><i>🛡</i>
+                <h3>ვირუსის გაწმენდა</h3>
+                <p>უსაფრთხოება და დაცვა</p>
+            </div>
+            <div class="card"><i>🔧</i>
+                <h3>ლეპტოპის რემონტი</h3>
+                <p>გაგრილების წმენდა, ნაწილები</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="order">
+        <h2>შეკვეთის გაკეთება</h2>
+        <form id="orderForm" style="max-width:500px;margin:auto;display:flex;flex-direction:column;gap:15px;">
+            <input type="text" id="customerName" placeholder="შენი სახელი და გვარი" required>
+            <input type="tel" id="customerPhone" placeholder="ტელეფონი" required>
+            <input type="text" id="address" placeholder="მისამართი" required>
+            <input type="text" id="description" placeholder="აღწერა" required>
+            <input type="datetime-local" id="date" placeholder="დრო" required>
+            <select id="serviceSelect" required style="padding:12px;border-radius:10px;">
+                <option value="">აირჩიე სერვისი</option>
+                <option value="Windows ინსტალაცია" data-price="50">Windows ინსტალაცია - 50₾</option>
+                <option value="ვირუსის გაწმენდა" data-price="30">ვირუსის გაწმენდა - 30₾</option>
+                <option value="ლეპტოპის რემონტი" data-price="70">ლეპტოპის რემონტი - 70₾</option>
+            </select>
+            <div id="priceDisplay" style="color:#00f5ff;font-weight:bold;"></div>
+            <button type="submit" class="cta-btn">შეკვეთის გაგზავნა</button>
+        </form>
+    </section>
+
+    <section class="section" id="adminPanel">
+        <h2 style="color:#00f5ff;">Order</h2>
+        <div id="adminDashboard" style="margin-top:30px;">
+            <table id="ordersTable" style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>სერვისი</th>
+                        <th>სახელი&ensp; გვარი</th>
+                        <th>ტელეფონი</th>
+                        <th>მისამართი</th>
+                        <th>ფასი</th>
+                        <th>აღწერა</th>
+                        <th>დრო</th>
+                        <th>მოქმედება</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer>© 2026 Davit-Tech </footer>
+</body>
+
+</html>
+
+
+<!-- Hidden Admin Box -->
+<div id="adminBox" style="
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:rgba(0,255,255,0.05);
+backdrop-filter:blur(15px);
+padding:40px;
+border-radius:20px;
+border:1px solid rgba(0,255,255,0.2);
+box-shadow:0 0 30px #00f5ff;
+text-align:center;
+z-index:10000;
+min-width:300px;
+">
+    <h2 style="color:#00f5ff;margin-bottom:20px;text-shadow:0 0 10px #00f5ff;">Admin Panel</h2>
+    <form id="adminLoginForm" style="display:flex;flex-direction:column;gap:15px;">
+        <input type="text" id="adminUsername" placeholder="Username" required
+            style="color: white; padding:12px;border-radius:10px;border: 1px solid black; background-color: transparent;">
+        <input type="password" id="adminPassword" placeholder="Password" required
+            style="color: white; padding:12px;border-radius:10px;border: 1px solid black; background-color: transparent;">
+        <button type="submit" class="cta-btn">Login</button>
+    </form>
+</div>

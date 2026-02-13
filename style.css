@@ -1,0 +1,234 @@
+/* ========= GENERAL ========= */
+*{
+    
+margin:0;
+padding:0;
+box-sizing:border-box;
+scroll-behavior:smooth;
+font-family:'Inter',sans-serif;
+}
+
+body{
+    min-height: 100vh;
+background:linear-gradient(-45deg,#020617,#0f172a,#001f3f,#020617);
+background-size:400% 400%;
+animation:gradientMove 15s ease infinite;
+color:white;
+overflow-x:hidden;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: space-between;
+}
+
+footer{
+    width: 100%;
+}
+
+@keyframes gradientMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+/* ========= HEADER ========= */
+header{
+position:fixed;
+width:100%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 60px;
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(15px);
+border-bottom:1px solid rgba(0,255,255,0.2);
+z-index:1000;
+}
+
+.logo{
+font-family:'Orbitron',sans-serif;
+font-size:26px;
+color:#00f5ff;
+text-shadow:0 0 20px #00f5ff;
+letter-spacing:2px;
+}
+
+nav a{
+margin-left:30px;
+text-decoration:none;
+color:white;
+transition:0.3s;
+}
+
+nav a:hover{
+color:#00f5ff;
+}
+
+/* ========= HERO ========= */
+.hero{
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:0 20px;
+}
+
+.hero h1{
+font-family:'Orbitron',sans-serif;
+font-size:52px;
+margin-bottom:20px;
+color:#00f5ff;
+text-shadow:0 0 25px #00f5ff;
+animation:fadeIn 2s ease forwards;
+}
+
+.hero p{
+max-width:600px;
+opacity:0.8;
+margin-bottom:40px;
+animation:fadeIn 3s ease forwards;
+}
+
+.cta-btn{
+padding:15px 40px;
+border-radius:50px;
+border:none;
+background:#00f5ff;
+color:#020617;
+font-weight:bold;
+cursor:pointer;
+transition:0.4s;
+box-shadow:0 0 25px #00f5ff;
+}
+
+.cta-btn:hover{
+transform:scale(1.1);
+box-shadow:0 0 45px #00f5ff;
+}
+
+/* ========= SECTIONS ========= */
+.section{
+    width: 100%;
+padding:120px 60px;
+text-align:center;
+}
+
+.section h2{
+font-family:'Orbitron',sans-serif;
+font-size:34px;
+margin-bottom:70px;
+color:#00f5ff;
+text-shadow:0 0 15px #00f5ff;
+}
+
+.cards{
+display:flex;
+justify-content:center;
+gap:40px;
+flex-wrap:wrap;
+}
+
+.card{
+background:rgba(255,255,255,0.05);
+padding:40px;
+width:300px;
+border-radius:20px;
+backdrop-filter:blur(20px);
+border:1px solid rgba(0,255,255,0.2);
+transition:0.5s;
+transform-style:preserve-3d;
+}
+
+.card:hover{
+transform:rotateY(10deg) rotateX(5deg) scale(1.05);
+box-shadow:0 0 40px rgba(0,255,255,0.4);
+}
+
+.card i{
+font-size:40px;
+margin-bottom:20px;
+color:#00f5ff;
+}
+
+/* ========= ORDER FORM ========= */
+#orderForm input,#orderForm select{
+padding:12px;
+border-radius:10px;
+border:none;
+}
+
+/* ========= ADMIN PANEL ========= */
+#adminDashboard table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+#adminDashboard th, #adminDashboard td{
+padding:15px;
+border-bottom:1px solid rgba(0,255,255,0.2);
+text-align:left;
+}
+
+#adminDashboard th{
+color:#00f5ff;
+}
+
+#adminDashboard tr:hover{
+background:rgba(0,255,255,0.1);
+}
+
+#adminDashboard button{
+padding:8px 15px;
+border:none;
+border-radius:8px;
+background:#00f5ff;
+color:#0a0f1c;
+cursor:pointer;
+transition:0.3s;
+}
+
+#adminDashboard button:hover{
+background:#00d4ff;
+}
+
+@keyframes fadeIn{
+from{opacity:0; transform:translateY(20px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+footer{
+text-align:center;
+padding:40px;
+background:rgba(0,0,0,0.4);
+border-top:1px solid rgba(0,255,255,0.2);
+opacity:0.7;
+}
+
+#adminBox{
+transition:all 0.3s ease-in-out;
+opacity:0;
+pointer-events:none;
+}
+
+#adminBox.show{
+opacity:1;
+pointer-events:auto;
+}
+
+#adminPanel{
+    display: none;
+}
+
+
+@media only screen and (max-width: 720px){
+    .logo{
+        font-size:14px;
+    }
+    nav a{
+        font-size: 11px;
+    }
+}
+
