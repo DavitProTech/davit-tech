@@ -233,5 +233,25 @@ pointer-events:auto;
     nav a{
         font-size: 12px;
     }
+    .hero {
+        height: 100vh;
+    }
+    /* Compact admin orders table for small screens */
+    #adminDashboard{
+        width:100%;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+    }
+    #adminDashboard table{
+        font-size:13px;
+        min-width:600px; /* allow horizontal scroll when necessary */
+    }
+    #adminDashboard th, #adminDashboard td{
+        padding:8px;
+    }
+    #adminDashboard button{
+        padding:6px 10px;
+        font-size:12px;
+    }
 }
 

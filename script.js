@@ -2,50 +2,48 @@
 const serviceSelect = document.getElementById("serviceSelect");
 const priceDisplay = document.getElementById("priceDisplay");
 
-if (serviceSelect) {
-  serviceSelect.addEventListener("change", function () {
-    let selected = serviceSelect.options[serviceSelect.selectedIndex];
-    let price = selected.getAttribute("data-price");
-    if (price) {
-      priceDisplay.innerText = "ფასი: " + price + "₾";
-    }
-  });
+function updatePriceDisplay() {
+  if (!serviceSelect || !priceDisplay) return;
+  const selected = serviceSelect.options[serviceSelect.selectedIndex];
+  const price = selected ? selected.getAttribute("data-price") : null;
+  priceDisplay.innerText = price ? `ფასი: ${price}₾` : "";
 }
 
+if (serviceSelect) serviceSelect.addEventListener("change", updatePriceDisplay);
+
 // ========= ORDER FORM =========
-const form = document.getElementById("orderForm");
-if (form) {
-  form.addEventListener("submit", function (e) {
+const orderForm = document.getElementById("orderForm");
+if (orderForm) {
+  orderForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    let name = document.getElementById("customerName").value;
-    let phone = document.getElementById("customerPhone").value;
-    let service = serviceSelect.value;
-    let price =
-      serviceSelect.options[serviceSelect.selectedIndex].getAttribute(
-        "data-price",
-      );
-    let address = document.getElementById("address").value;
-    let description = document.getElementById("description").value;
-    let date = document.getElementById("date").value.split("T").join('  ');
+    const name = document.getElementById("customerName").value;
+    const phone = document.getElementById("customerPhone").value;
+    const service = serviceSelect ? serviceSelect.value : "";
+    const price = serviceSelect
+      ? serviceSelect.options[serviceSelect.selectedIndex].getAttribute("data-price")
+      : "";
+    const address = document.getElementById("address").value;
+    const description = document.getElementById("description").value;
+    const date = document.getElementById("date").value.split("T").join("  ");
 
-    let orderID = "DT-" + Math.floor(Math.random() * 100000);
+    const orderID = "DT-" + Math.floor(Math.random() * 100000);
+    const order = { id: orderID, name, phone, service, price, address, description, date };
 
-    let order = { id: orderID, name, phone, service, price, address, description, date };
-
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    const orders = JSON.parse(localStorage.getItem("orders")) || [];
     orders.push(order);
     localStorage.setItem("orders", JSON.stringify(orders));
 
     alert("შეკვეთა მიღებულია ✅ Order ID: " + orderID);
 
-    form.reset();
-    priceDisplay.innerText = "";
+    orderForm.reset();
+    updatePriceDisplay();
   });
 }
 
 // ========= ADMIN PANEL =========
-const adminForm = document.getElementById("adminBox");
+const adminBox = document.getElementById("adminBox"); // modal container
+const adminLoginForm = document.getElementById("adminLoginForm");
 const adminPanel = document.getElementById("adminPanel");
 const usernameInput = document.getElementById("adminUsername");
 const passwordInput = document.getElementById("adminPassword");
@@ -53,20 +51,18 @@ const sectionList = [
   document.getElementById("hero"),
   document.getElementById("services"),
   document.getElementById("order")
-]
+];
 
-if (adminForm) {
-  adminForm.addEventListener("submit", function (e) {
+if (adminLoginForm) {
+  adminLoginForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    const user = usernameInput.value;
-    const password = passwordInput.value;
+    const user = usernameInput ? usernameInput.value : "";
+    const password = passwordInput ? passwordInput.value : "";
 
     if (password === "2003" && user === "admin") {
-      sectionList.forEach((element) => {
-        element.style.display = "none";
-      })
-      adminForm.style.display = "none";
-      adminPanel.style.display = "block";
+      sectionList.forEach((el) => { if (el) el.style.display = "none"; });
+      if (adminBox) adminBox.style.display = "none";
+      if (adminPanel) adminPanel.style.display = "block";
       loadOrders();
     } else {
       alert("მომხმარებელი ან პაროლი არასწორია ❌");
@@ -97,7 +93,7 @@ function loadOrders() {
 }
 
 function deleteOrder(index) {
-  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
   orders.splice(index, 1);
   localStorage.setItem("orders", JSON.stringify(orders));
   loadOrders();
@@ -105,25 +101,19 @@ function deleteOrder(index) {
 
 // Admin Box Toggle
 const adminToggle = document.getElementById("adminToggle");
-const adminBox = document.getElementById("adminBox");
-
-adminToggle.addEventListener("click", () => {
-  if (adminBox.style.display === "none" || adminBox.style.display === "") {
-    adminBox.style.display = "block";
-  } else {
-    adminBox.style.display = "none";
-  }
-});
-
-adminToggle.addEventListener("click", () => {
-  adminBox.classList.toggle("show");
-});
+if (adminToggle && adminBox) {
+  adminToggle.addEventListener("click", () => {
+    const isHidden = adminBox.style.display === "none" || adminBox.style.display === "";
+    adminBox.style.display = isHidden ? "block" : "none";
+    adminBox.classList.toggle("show");
+  });
+}
 
 // ========= HERO CTA SCROLL =========
 const heroCta = document.querySelector("#hero .cta-btn");
 const header = document.querySelector("header");
 if (heroCta) {
-  heroCta.addEventListener("click", (e) => {
+  heroCta.addEventListener("click", () => {
     const target = document.getElementById("services");
     if (!target) return;
     const headerHeight = header ? header.offsetHeight : 0;
