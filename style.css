@@ -225,10 +225,10 @@ pointer-events:auto;
 
 @media only screen and (max-width: 720px){
     .logo{
-        font-size:14px;
+        font-size:13px;
     }
     nav a{
-        font-size: 11px;
+        font-size: 10px;
     }
 }
 
