@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
 </head>
+      
 
 <body>
 
@@ -27,25 +28,55 @@
     </section>
 
     <section class="section" id="services">
-        <h2>ჩვენი სერვისები</h2>
+        <h2>სერვისები</h2>
         <div class="cards">
-            <div class="card"><i>💻</i>
-                <h3>Windows ინსტალაცია</h3>
-                <p>სუფთა სისტემა + ოპტიმიზაცია</p>
+            <div class="card">
+                <img src="images/windows inst.png" alt="windows" style="width:200px; border-radius: 5px;">
+                <div>
+                    <h3>Windows ინსტალაცია</h3>
+                    <p>პროფესიონალური ინსტალაცია და აქტივაციების გაქტიურება</p>
+                </div>
             </div>
-            <div class="card"><i>🛡</i>
-                <h3>ვირუსის გაწმენდა</h3>
-                <p>უსაფრთხოება და დაცვა</p>
+            <div class="card">
+                <img src=images/Viruss.png alt="virus" style="width:200px; border-radius: 5px;">
+                <div>
+                    <h3>ვირუსის გაწმენდა</h3>
+                    <p>სისტემის ვირუსების გაწმენდა და უსაფრთხოების გაუმჯობესება</p>
+                </div>
             </div>
-            <div class="card"><i>🔧</i>
-                <h3>ლეპტოპის რემონტი</h3>
-                <p>გაგრილების წმენდა, ნაწილები</p>
+            <div class="card">
+                <img src="images/pc.png" alt="pc" style="width:200px; border-radius: 5px;">
+                <div>
+                    <h3>PC/Laptop შეკეთება</h3>
+                    <p>ნაწილების აწყობა-დაშლა, გაწმენდა, სისტემის განახლება</p>
+                </div>
+            </div>
+            <div class="card">
+                <img src="images/EPW.png" alt="EPW" style="width:200px; border-radius: 5px;">
+                <div>
+                    <h3>საოფისე პროგრამები</h3>
+                    <p>Excel, Word, PowerPoint ინსტალაცია და მხარდაჭერა</p>
+                </div>
+            </div>
+            <div class="card">
+                <img src="images/adobe.png" alt="adobe" style="width:200px;">
+                <div>
+                    <h3>Adobe პაკეტი</h3>
+                    <p>Photoshop, Illustrator, Premiere Pro მომსახურება</p>
+                </div>
+            </div>
+            <div class="card">
+                <img src="images/diagnostic.png" alt="diagnostic" style="width:200px; border-radius: 5px;">
+                <div>
+                    <h3>Diagnostic</h3>
+                    <p>სისტემური დიაგნოსტიკა და სრულყოფილი შემოწმება</p>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="section" id="order">
-        <h2>შეკვეთის გაკეთება</h2>
+        <h2>შეკვეთა</h2>
         <form id="orderForm" style="max-width:500px;margin:auto;display:flex;flex-direction:column;gap:15px;">
             <input type="text" id="customerName" placeholder="შენი სახელი და გვარი" required>
             <input type="tel" id="customerPhone" placeholder="ტელეფონი" required>
@@ -54,9 +85,13 @@
             <input type="datetime-local" id="date" placeholder="დრო" required>
             <select id="serviceSelect" required style="padding:12px;border-radius:10px;">
                 <option value="">აირჩიე სერვისი</option>
-                <option value="Windows ინსტალაცია" data-price="50">Windows ინსტალაცია - 50₾</option>
+                <option value="Windows ინსტალაცია" data-price="20">Windows 7-11 ინსტალაცია - 20₾</option>
+                <option value="აქტივაციების გაქტიურება" data-price="10">აქტივაციების გაქტიურება - 10₾</option>
+                <option value="დიაგნოსტიკა" data-price="20">დიაგნოსტიკა - 20₾</option>
                 <option value="ვირუსის გაწმენდა" data-price="30">ვირუსის გაწმენდა - 30₾</option>
-                <option value="ლეპტოპის რემონტი" data-price="70">ლეპტოპის რემონტი - 70₾</option>
+                <option value="PC/Laptop შეკეთება" data-price="60">PC/Laptop შეკეთება - 60₾</option>
+                <option value="საოფისე პროგრამები" data-price="30">საოფისე პროგრამები - 30₾</option>
+                <option value="Adobe პაკეტი" data-price="50">Adobe პაკეტი - 50₾</option>
             </select>
             <div id="priceDisplay" style="color:#00f5ff;font-weight:bold;"></div>
             <button type="submit" class="cta-btn">შეკვეთის გაგზავნა</button>
