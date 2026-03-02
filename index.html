@@ -1,154 +1,151 @@
 <!DOCTYPE html>
 <html lang="ka">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Davit-Tech</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="script.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Davit-Tech</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
 </head>
-      
 
 <body>
+  <header>
+    <div class="logo">Davit-Tech</div>
+    <nav>
+      <a href="#services">სერვისები</a>
+      <a href="#order">შეკვეთა</a>
+    </nav>
+  </header>
 
-    <header>
-        <div class="logo">Davit-Tech</div>
-        <nav>
-            <a href="#services">სერვისები</a>
-            <a href="#order">შეკვეთა</a>
-            <a href="#adminPanel" id="adminToggle">Admin</a>
-        </nav>
-    </header>
+  <section class="hero" id="hero">
+    <h1>Davit-Tech Service</h1>
+    <p>მაღალი კლასის ტექნიკური მომსახურება. სწრაფი, სუფთა და პროფესიონალური შედეგი.</p>
+    <button class="cta-btn">იხილეთ დეტალები</button>
+  </section>
 
-    <section class="hero" id="hero">
-        <h1>Davit-Tech Service</h1>
-        <p>მაღალი კლასის ტექნიკური მომსახურება. სწრაფი, სუფთა და პროფესიონალური შედეგი.</p>
-        <button class="cta-btn">იხილეთ დეტალები</button>
-    </section>
-
-    <section class="section" id="services">
-        <h2>სერვისები</h2>
-        <div class="cards">
-            <div class="card">
-                <img src="images/windows inst.png" alt="windows" style="width:200px; border-radius: 5px;">
-                <div>
-                    <h3>Windows ინსტალაცია</h3>
-                    <p>პროფესიონალური ინსტალაცია და აქტივაციების გაქტიურება</p>
-                </div>
-            </div>
-            <div class="card">
-                <img src=images/Viruss.png alt="virus" style="width:200px; border-radius: 5px;">
-                <div>
-                    <h3>ვირუსის გაწმენდა</h3>
-                    <p>სისტემის ვირუსების გაწმენდა და უსაფრთხოების გაუმჯობესება</p>
-                </div>
-            </div>
-            <div class="card">
-                <img src="images/pc.png" alt="pc" style="width:200px; border-radius: 5px;">
-                <div>
-                    <h3>PC/Laptop შეკეთება</h3>
-                    <p>ნაწილების აწყობა-დაშლა, გაწმენდა, სისტემის განახლება</p>
-                </div>
-            </div>
-            <div class="card">
-                <img src="images/EPW.png" alt="EPW" style="width:200px; border-radius: 5px;">
-                <div>
-                    <h3>საოფისე პროგრამები</h3>
-                    <p>Excel, Word, PowerPoint ინსტალაცია და მხარდაჭერა</p>
-                </div>
-            </div>
-            <div class="card">
-                <img src="images/adobe.png" alt="adobe" style="width:200px;">
-                <div>
-                    <h3>Adobe პაკეტი</h3>
-                    <p>Photoshop, Illustrator, Premiere Pro მომსახურება</p>
-                </div>
-            </div>
-            <div class="card">
-                <img src="images/diagnostic.png" alt="diagnostic" style="width:200px; border-radius: 5px;">
-                <div>
-                    <h3>Diagnostic</h3>
-                    <p>სისტემური დიაგნოსტიკა და სრულყოფილი შემოწმება</p>
-                </div>
-            </div>
+  <section class="section" id="services">
+    <h2>სერვისები</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="images/windows inst.png" alt="windows" style="width:200px; border-radius: 5px;">
+        <div>
+          <h3>Windows ინსტალაცია</h3>
+          <p>პროფესიონალური ინსტალაცია და აქტივაციების გაქტიურება</p>
         </div>
-    </section>
+      </div>
 
-    <section class="section" id="order">
-        <h2>შეკვეთა</h2>
-        <form id="orderForm" style="max-width:500px;margin:auto;display:flex;flex-direction:column;gap:15px;">
-            <input type="text" id="customerName" placeholder="შენი სახელი და გვარი" required>
-            <input type="tel" id="customerPhone" placeholder="ტელეფონი" required>
-            <input type="text" id="address" placeholder="მისამართი" required>
-            <input type="text" id="description" placeholder="აღწერა" required>
-            <input type="datetime-local" id="date" placeholder="დრო" required>
-            <select id="serviceSelect" required style="padding:12px;border-radius:10px;">
-                <option value="">აირჩიე სერვისი</option>
-                <option value="Windows ინსტალაცია" data-price="20">Windows 7-11 ინსტალაცია - 20₾</option>
-                <option value="აქტივაციების გაქტიურება" data-price="10">აქტივაციების გაქტიურება - 10₾</option>
-                <option value="დიაგნოსტიკა" data-price="20">დიაგნოსტიკა - 20₾</option>
-                <option value="ვირუსის გაწმენდა" data-price="30">ვირუსის გაწმენდა - 30₾</option>
-                <option value="PC/Laptop შეკეთება" data-price="60">PC/Laptop შეკეთება - 60₾</option>
-                <option value="საოფისე პროგრამები" data-price="30">საოფისე პროგრამები - 30₾</option>
-                <option value="Adobe პაკეტი" data-price="50">Adobe პაკეტი - 50₾</option>
-            </select>
-            <div id="priceDisplay" style="color:#00f5ff;font-weight:bold;"></div>
-            <button type="submit" class="cta-btn">შეკვეთის გაგზავნა</button>
-        </form>
-    </section>
-
-    <section class="section" id="adminPanel">
-        <h2 style="color:#00f5ff;">Order</h2>
-        <div id="adminDashboard" style="margin-top:30px;">
-            <table id="ordersTable" style="width:100%;border-collapse:collapse;">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>სერვისი</th>
-                        <th>სახელი&ensp; გვარი</th>
-                        <th>ტელეფონი</th>
-                        <th>მისამართი</th>
-                        <th>ფასი</th>
-                        <th>აღწერა</th>
-                        <th>დრო</th>
-                        <th>მოქმედება</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+      <div class="card">
+        <img src="images/Viruss.png" alt="virus" style="width:200px; border-radius: 5px;">
+        <div>
+          <h3>ვირუსის გაწმენდა</h3>
+          <p>სისტემის ვირუსების გაწმენდა და უსაფრთხოების გაუმჯობესება</p>
         </div>
-    </section>
+      </div>
 
-    <footer>© 2026 Davit-Tech </footer>
-</body>
+      <div class="card">
+        <img src="images/pc.png" alt="pc" style="width:200px; border-radius: 5px;">
+        <div>
+          <h3>PC/Laptop შეკეთება</h3>
+          <p>ნაწილების აწყობა-დაშლა, გაწმენდა, სისტემის განახლება</p>
+        </div>
+      </div>
 
-</html>
+      <div class="card">
+        <img src="images/EPW.png" alt="EPW" style="width:200px; border-radius: 5px;">
+        <div>
+          <h3>საოფისე პროგრამები</h3>
+          <p>Excel, Word, PowerPoint ინსტალაცია და მხარდაჭერა</p>
+        </div>
+      </div>
 
+      <div class="card">
+        <img src="images/adobe.png" alt="adobe" style="width:200px;">
+        <div>
+          <h3>Adobe პაკეტი</h3>
+          <p>Photoshop, Illustrator, Premiere Pro მომსახურება</p>
+        </div>
+      </div>
 
-<!-- Hidden Admin Box -->
-<div id="adminBox" style="
-display:none;
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:rgba(0,255,255,0.05);
-backdrop-filter:blur(15px);
-padding:40px;
-border-radius:20px;
-border:1px solid rgba(0,255,255,0.2);
-box-shadow:0 0 30px #00f5ff;
-text-align:center;
-z-index:10000;
-min-width:300px;
-">
-    <h2 style="color:#00f5ff;margin-bottom:20px;text-shadow:0 0 10px #00f5ff;">Admin Panel</h2>
-    <form id="adminLoginForm" style="display:flex;flex-direction:column;gap:15px;">
-        <input type="text" id="adminUsername" placeholder="Username" required
-            style="color: white; padding:12px;border-radius:10px;border: 1px solid black; background-color: transparent;">
-        <input type="password" id="adminPassword" placeholder="Password" required
-            style="color: white; padding:12px;border-radius:10px;border: 1px solid black; background-color: transparent;">
-        <button type="submit" class="cta-btn">Login</button>
+      <div class="card">
+        <img src="images/diagnostic.png" alt="diagnostic" style="width:200px; border-radius: 5px;">
+        <div>
+          <h3>Diagnostic</h3>
+          <p>სისტემური დიაგნოსტიკა და სრულყოფილი შემოწმება</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="order">
+    <h2>შეკვეთა</h2>
+    <form id="orderForm" style="max-width:500px;margin:auto;display:flex;flex-direction:column;gap:15px;">
+      <input type="text" id="customerName" placeholder="შენი სახელი და გვარი" required />
+      <input type="tel" id="customerPhone" placeholder="ტელეფონი" required />
+      <input type="text" id="address" placeholder="მისამართი" required />
+      <input type="text" id="description" placeholder="აღწერა" required />
+      <input type="datetime-local" id="date" placeholder="დრო" required />
+
+      <select id="serviceSelect" required style="padding:12px;border-radius:10px;">
+        <option value="">აირჩიე სერვისი</option>
+        <option value="Windows ინსტალაცია" data-price="20">Windows 7-11 ინსტალაცია - 20₾</option>
+        <option value="აქტივაციების გაქტიურება" data-price="10">აქტივაციების გაქტიურება - 10₾</option>
+        <option value="დიაგნოსტიკა" data-price="20">დიაგნოსტიკა - 20₾</option>
+        <option value="ვირუსის გაწმენდა" data-price="30">ვირუსის გაწმენდა - 30₾</option>
+        <option value="PC/Laptop შეკეთება" data-price="60">PC/Laptop შეკეთება - 60₾</option>
+        <option value="საოფისე პროგრამები" data-price="30">საოფისე პროგრამები - 30₾</option>
+        <option value="Adobe პაკეტი" data-price="50">Adobe პაკეტი - 50₾</option>
+      </select>
+
+      <div id="priceDisplay" style="color:#00f5ff;font-weight:bold;"></div>
+      <button type="submit" class="cta-btn">შეკვეთის გაგზავნა</button>
     </form>
+  </section>
+
+  <section class="section" id="adminPanel" style="display:none;">
+    <h2 style="color:#00f5ff;">Order</h2>
+
+    <div style="display:flex; gap:10px; margin: 10px 0 20px;">
+      <button id="logoutBtn" class="cta-btn" type="button">Logout</button>
+      <button id="refreshOrdersBtn" class="cta-btn" type="button">Refresh</button>
+    </div>
+
+    <div id="adminDashboard" style="margin-top:10px;">
+      <table id="ordersTable" style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>სერვისი</th>
+            <th>სახელი გვარი</th>
+            <th>ტელეფონი</th>
+            <th>მისამართი</th>
+            <th>ფასი</th>
+            <th>აღწერა</th>
+            <th>დრო</th>
+            <th>მოქმედება</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>© 2026 Davit-Tech</footer>
+
+  <!-- Hidden Admin Box -->
+<div id="adminBox">
+  <h2>Admin Panel</h2>
+
+  <form id="adminLoginForm" class="admin-form">
+    <div class="admin-field">
+      <input type="text" id="adminUsername" placeholder="Username" required />
+    </div>
+
+    <div class="admin-field">
+      <input type="password" id="adminPassword" placeholder="Password" required />
+    </div>
+
+    <button type="submit" class="admin-btn">Login</button>
+  </form>
 </div>
+</body>
+</html>

@@ -50,18 +50,56 @@ const passwordInput = document.getElementById("adminPassword");
 const sectionList = [
   document.getElementById("hero"),
   document.getElementById("services"),
-  document.getElementById("order")
+  document.getElementById("order"),
 ];
+
+function loadOrders() {
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
+  const tbody = document.querySelector("#ordersTable tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  orders.forEach((order, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${order.id || ""}</td>
+      <td>${order.service || ""}</td>
+      <td>${order.name || ""}</td>
+      <td>${order.phone || ""}</td>
+      <td>${order.address || ""}</td>
+      <td>${order.price || ""}₾</td>
+      <td>${order.description || ""}</td>
+      <td>${order.date || ""}</td>
+      <td><button onclick="deleteOrder(${index})">წაშლა</button></td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// IMPORTANT: deleteOrder must be global (because onclick is in HTML string)
+window.deleteOrder = function (index) {
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
+  orders.splice(index, 1);
+  localStorage.setItem("orders", JSON.stringify(orders));
+  loadOrders();
+};
 
 if (adminLoginForm) {
   adminLoginForm.addEventListener("submit", function (e) {
     e.preventDefault();
+
     const user = usernameInput ? usernameInput.value : "";
     const password = passwordInput ? passwordInput.value : "";
 
     if (password === "2003" && user === "admin") {
-      sectionList.forEach((el) => { if (el) el.style.display = "none"; });
-      if (adminBox) adminBox.style.display = "none";
+      // hide login box
+      if (adminBox) {
+        adminBox.classList.remove("show");
+        adminBox.style.display = "none";
+      }
+
+      // show admin panel
       if (adminPanel) adminPanel.style.display = "block";
       loadOrders();
     } else {
@@ -70,44 +108,39 @@ if (adminLoginForm) {
   });
 }
 
-function loadOrders() {
-  let orders = JSON.parse(localStorage.getItem("orders")) || [];
-  let tbody = document.querySelector("#ordersTable tbody");
-  tbody.innerHTML = "";
+// ========= HASH ADMIN ROUTE (FIXED) =========
+document.addEventListener("DOMContentLoaded", function () {
+  function handleRoute() {
+    const isAdmin = window.location.hash === "#admin";
 
-  orders.forEach((order, index) => {
-    let row = document.createElement("tr");
-    row.innerHTML = `
-<td>${order.id}</td>
-<td>${order.service}</td>
-<td>${order.name}</td>
-<td>${order.phone}</td>
-<td>${order.address}</td>
-<td>${order.price}₾</td>
-<td>${order.description}</td>
-<td>${order.date}</td>
-<td><button onclick="deleteOrder(${index})">წაშლა</button></td>
-`;
-    tbody.appendChild(row);
-  });
-}
+    if (isAdmin) {
+      // hide public sections
+      sectionList.forEach((el) => { if (el) el.style.display = "none"; });
 
-function deleteOrder(index) {
-  const orders = JSON.parse(localStorage.getItem("orders")) || [];
-  orders.splice(index, 1);
-  localStorage.setItem("orders", JSON.stringify(orders));
-  loadOrders();
-}
+      // ensure admin panel is hidden until login
+      if (adminPanel) adminPanel.style.display = "none";
 
-// Admin Box Toggle
-const adminToggle = document.getElementById("adminToggle");
-if (adminToggle && adminBox) {
-  adminToggle.addEventListener("click", () => {
-    const isHidden = adminBox.style.display === "none" || adminBox.style.display === "";
-    adminBox.style.display = isHidden ? "block" : "none";
-    adminBox.classList.toggle("show");
-  });
-}
+      // ✅ show admin login modal (IMPORTANT: add .show)
+      if (adminBox) {
+        adminBox.style.display = "block";
+        adminBox.classList.add("show");
+      }
+    } else {
+      // show public sections back
+      sectionList.forEach((el) => { if (el) el.style.display = ""; });
+
+      // hide admin UI
+      if (adminBox) {
+        adminBox.classList.remove("show");
+        adminBox.style.display = "none";
+      }
+      if (adminPanel) adminPanel.style.display = "none";
+    }
+  }
+
+  handleRoute();
+  window.addEventListener("hashchange", handleRoute);
+});
 
 // ========= HERO CTA SCROLL =========
 const heroCta = document.querySelector("#hero .cta-btn");
@@ -121,4 +154,3 @@ if (heroCta) {
     window.scrollTo({ top, behavior: "smooth" });
   });
 }
-
