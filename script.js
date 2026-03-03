@@ -103,7 +103,7 @@ if (adminLoginForm) {
       if (adminPanel) adminPanel.style.display = "block";
       loadOrders();
     } else {
-      alert("მომხმარებელი ან პაროლი არასწორია ❌");
+      alert("მომხმარებელი ან პაროლი არასწორიაaa ❌");
     }
   });
 }
