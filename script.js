@@ -13,8 +13,10 @@ if (serviceSelect) serviceSelect.addEventListener("change", updatePriceDisplay);
 
 // ========= ORDER FORM =========
 const orderForm = document.getElementById("orderForm");
+const API_URL = "http://localhost:3000";
+
 if (orderForm) {
-  orderForm.addEventListener("submit", function (e) {
+  orderForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const name = document.getElementById("customerName").value;
@@ -27,17 +29,26 @@ if (orderForm) {
     const description = document.getElementById("description").value;
     const date = document.getElementById("date").value.split("T").join("  ");
 
-    const orderID = "DT-" + Math.floor(Math.random() * 100000);
-    const order = { id: orderID, name, phone, service, price, address, description, date };
+    try {
+      const response = await fetch(`${API_URL}/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, service, price, address, description, date })
+      });
 
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push(order);
-    localStorage.setItem("orders", JSON.stringify(orders));
-
-    alert("შეკვეთა მიღებულია ✅ Order ID: " + orderID);
-
-    orderForm.reset();
-    updatePriceDisplay();
+      const result = await response.json();
+      
+      if (result.success) {
+        alert("შეკვეთა მიღებულია ✅ Order ID: " + result.data.id);
+        orderForm.reset();
+        updatePriceDisplay();
+      } else {
+        alert("შეცდომა: " + (result.message || "დაფიქსირდა გაურკეველი შეცდომა"));
+      }
+    } catch (error) {
+      console.error("Order submission error:", error);
+      alert("სერვერთან დაკავშირების შეცდომა. ჯერ არის აკტიური?");
+    }
   });
 }
 
@@ -54,35 +65,65 @@ const sectionList = [
 ];
 
 function loadOrders() {
-  const orders = JSON.parse(localStorage.getItem("orders")) || [];
   const tbody = document.querySelector("#ordersTable tbody");
   if (!tbody) return;
 
-  tbody.innerHTML = "";
+  fetch(`${API_URL}/api/orders`)
+    .then(res => res.json())
+    .then(result => {
+      if (!result.success) {
+        console.error("Failed to load orders:", result.message);
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#ff6b6b;">Cannot load orders. Server is not running.</td></tr>`;
+        return;
+      }
 
-  orders.forEach((order, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${order.id || ""}</td>
-      <td>${order.service || ""}</td>
-      <td>${order.name || ""}</td>
-      <td>${order.phone || ""}</td>
-      <td>${order.address || ""}</td>
-      <td>${order.price || ""}₾</td>
-      <td>${order.description || ""}</td>
-      <td>${order.date || ""}</td>
-      <td><button onclick="deleteOrder(${index})">წაშლა</button></td>
-    `;
-    tbody.appendChild(row);
-  });
+      tbody.innerHTML = "";
+      const orders = result.data || [];
+
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders found</td></tr>`;
+        return;
+      }
+
+      orders.forEach((order) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${order.id || ""}</td>
+          <td>${order.service || ""}</td>
+          <td>${order.name || ""}</td>
+          <td>${order.phone || ""}</td>
+          <td>${order.address || ""}</td>
+          <td>${order.price || ""}₾</td>
+          <td>${order.description || ""}</td>
+          <td>${order.date || ""}</td>
+          <td><button onclick="deleteOrder('${order.id}')">წაშლა</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    })
+    .catch(error => {
+      console.error("Error loading orders:", error);
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#ff6b6b;">Error loading orders</td></tr>`;
+    });
 }
 
 // IMPORTANT: deleteOrder must be global (because onclick is in HTML string)
-window.deleteOrder = function (index) {
-  const orders = JSON.parse(localStorage.getItem("orders")) || [];
-  orders.splice(index, 1);
-  localStorage.setItem("orders", JSON.stringify(orders));
-  loadOrders();
+window.deleteOrder = function (orderId) {
+  fetch(`${API_URL}/api/orders/${orderId}`, {
+    method: "DELETE"
+  })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        loadOrders();
+      } else {
+        alert("Error deleting order: " + (result.message || "Unknown error"));
+      }
+    })
+    .catch(error => {
+      console.error("Error deleting order:", error);
+      alert("Error deleting order");
+    });
 };
 
 if (adminLoginForm) {
