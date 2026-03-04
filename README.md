@@ -59,17 +59,27 @@ npm start
 npm run dev
 ```
 
-The server will start on `http://localhost:3000`
+The server will start on `http://localhost:3000` by default.
+It listens on `0.0.0.0` so devices on the same local network can reach it.  
+Watch the console log for an additional line showing the machine's IP (e.g. `http://192.168.1.100:3000`).
+
+#### Accessing from other devices
+
+- **Desktop (host)**: open `http://localhost:3000` in a browser.
+- **Smartphone/tablet on same Wi‑Fi**: open `http://<PC_IP>:3000` replacing `<PC_IP>` with the address printed in the server log.
+
+> ⚠️ If you cannot connect from mobile:
+> * ensure both devices are on the same network
+> * check your PC firewall allows inbound TCP on the chosen port
+> * confirm the server process is running and listening
+> * you can also use a tunneling service (e.g. [ngrok](https://ngrok.com/)) to expose the server
 
 ### Accessing the Application
 
-1. **Customer Interface**: Open `http://localhost:3000` in your browser
-   - Browse services
-   - Submit orders
-   - Receive Order ID confirmation
+1. **Customer Interface**: Use one of the URLs above to browse services, submit orders, and receive a confirmation ID.
 
 2. **Admin Panel**: 
-   - Navigate to `http://localhost:3000#admin`
+   - Navigate to `http://localhost:3000#admin` (or `http://<PC_IP>:3000#admin` from another device)
    - Login with:
      - **Username**: `admin`
      - **Password**: `2003`

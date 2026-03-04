@@ -9,7 +9,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+// bind to 0.0.0.0 to accept requests from other devices on the network
+const HOST = process.env.HOST || '0.0.0.0';
 const ORDERS_FILE = path.join(__dirname, 'orders.json');
 
 // Middleware
@@ -146,7 +148,22 @@ app.delete('/api/orders', (req, res) => {
 
 // Start server
 ensureOrdersFile();
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`🚀 Davit-Tech Order Server running on https://davitprotech.vercel.app/#order`);
+  console.log(`🚀 Also accessible on local network at https://davitprotech.vercel.app/#order`);
   console.log(`📝 Orders stored in: ${ORDERS_FILE}`);
 });
+
+// helper to get local IP address for instructions
+function getLocalIp() {
+  const os = require('os');
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
