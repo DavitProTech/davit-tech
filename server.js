@@ -150,8 +150,8 @@ app.delete('/api/orders', (req, res) => {
 // Start server
 ensureOrdersFile();
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Davit-Tech Order Server running on http://localhost:${PORT}`);
-  console.log(`🚀 Also accessible on local network at http://${getLocalIp()}:${PORT}`);
+  console.log(`🚀 Davit-Tech Order Server running on https://davitprotech.vercel.app/#orders`);
+  console.log(`🚀 Also accessible on local network at http://localhost:${PORT}`);
   console.log(`📝 Orders stored in: ${ORDERS_FILE}`);
 });
 
