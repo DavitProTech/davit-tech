@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -149,14 +150,13 @@ app.delete('/api/orders', (req, res) => {
 // Start server
 ensureOrdersFile();
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Davit-Tech Order Server running on https://davitprotech.vercel.app/#order`);
+  console.log(`🚀 Davit-Tech Order Server running on http://localhost:${PORT}`);
   console.log(`🚀 Also accessible on local network at http://${getLocalIp()}:${PORT}`);
   console.log(`📝 Orders stored in: ${ORDERS_FILE}`);
 });
 
 // helper to get local IP address for instructions
 function getLocalIp() {
-  const os = require('os');
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
     for (const iface of interfaces[name]) {
@@ -167,4 +167,3 @@ function getLocalIp() {
   }
   return 'localhost';
 }
-ng
