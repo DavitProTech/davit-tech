@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: davit-tech-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+    healthCheckPath: /api/orders
+    headers:
+      - key: Access-Control-Allow-Origin
+        value: "*"
+    disk:
+      name: orders-data
+      mountPath: /app
+      sizeGB: 1
