@@ -39,6 +39,10 @@ function generateOrderId(existingIds) {
   return id;
 }
 
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
+
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await loadOrders();

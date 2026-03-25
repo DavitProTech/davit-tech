@@ -195,3 +195,5 @@ if (heroCta) {
     window.scrollTo({ top, behavior: "smooth" });
   });
 }
+
+const API_URL = 'https://davit-tech-api.onrender.com/api/orders';
