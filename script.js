@@ -29,7 +29,7 @@ if (orderForm) {
       ? serviceSelect.options[serviceSelect.selectedIndex]?.getAttribute("data-price") || ""
       : "";
     const address = document.getElementById("address")?.value?.trim() || "";
-    const description = document.getElementById("description")?.value?.trim() || "";
+    const description = document.getElementById("description")?.value?.trim() || "no description";
     const dateInput = document.getElementById("date")?.value || "";
     const date = dateInput ? dateInput.split("T").join("  ") : "";
 
