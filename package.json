@@ -1,5 +1,7 @@
-"type": "module
-",
+{
+  "name": "davit-tech",
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
@@ -9,4 +11,4 @@
     "body-parser": "^1.20.2",
     "uuid": "^9.0.0"
   }
-  
+}
