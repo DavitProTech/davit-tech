@@ -129,6 +129,14 @@ window.deleteOrder = function (orderId) {
     });
 };
 
+const refreshOrdersBtn = document.getElementById("refreshOrdersBtn");
+
+if (refreshOrdersBtn) {
+  refreshOrdersBtn.addEventListener("click", function () {
+    loadOrders();
+  });
+}
+
 if (adminLoginForm) {
   adminLoginForm.addEventListener("submit", function (e) {
     e.preventDefault();
