@@ -13,7 +13,7 @@ if (serviceSelect) serviceSelect.addEventListener("change", updatePriceDisplay);
 
 // ========= ORDER FORM =========
 const orderForm = document.getElementById("orderForm");
-const API_URL = "http://localhost:3000";
+const API_URL = "https://davit-tech-api.onrender.com/api/orders";
 
 if (orderForm) {
   orderForm.addEventListener("submit", async function (e) {
@@ -196,4 +196,3 @@ if (heroCta) {
   });
 }
 
-const API_URL = 'https://davit-tech-api.onrender.com/api/orders';
