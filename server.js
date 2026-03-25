@@ -8,7 +8,9 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const DATA_FILE = path.resolve(process.cwd(), 'orders.json');
 
-app.use(cors());
+app.use(cors({
+  origin: ["https://davitprotech.vercel.app", "http://localhost:3000", "http://localhost"]
+}));
 app.use(express.json());
 app.use(express.static(process.cwd()));
 
