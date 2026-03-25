@@ -1,7 +1,12 @@
 // ========= PRICE DISPLAY =========
 const serviceSelect = document.getElementById("serviceSelect");
 const priceDisplay = document.getElementById("priceDisplay");
-const API_URL = window.location.origin;
+const API_URL = "https://davit-tech-api.onrender.com";
+
+
+app.use(cors({
+  origin: "https://davitprotech.vercel.app/"
+}));
 
 function updatePriceDisplay() {
   if (!serviceSelect || !priceDisplay) return;
