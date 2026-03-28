@@ -145,7 +145,68 @@
     </div>
 
     <button type="submit" class="admin-btn">Login</button>
+
+  
+
+
+
+
+    
   </form>
 </div>
 </body>
+<!-- whatsapp button and links -->
+<a href="https://wa.me/995574022030" class="whatsapp-btn" target="_blank">
+
+
+<a
+  href="https://wa.me/995574022030?text=გამარჯობა,რით შემიძლია დაგეხმაროთ?"
+  class="whatsapp-float"
+  target="_blank"
+  aria-label="მოგვწერეთ WhatsApp-ზე"
+>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+</a>
+
+<style>
+  .whatsapp-float {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 65px;
+    height: 65px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 9999;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .whatsapp-float:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  }
+
+  .whatsapp-float img {
+    width: 34px;
+    height: 34px;
+  }
+
+  @media (max-width: 768px) {
+    .whatsapp-float {
+      width: 58px;
+      height: 58px;
+      right: 15px;
+      bottom: 15px;
+    }
+
+    .whatsapp-float img {
+      width: 30px;
+      height: 30px;
+    }
+  }
+</style>
 </html>
