@@ -315,6 +315,22 @@ opacity:0.7;
     display: none;
 }
 
+#refreshOrdersBtn{
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    background-color: #00f5ff;
+    color: #0a0f1c;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 25px #00f5ff
+}
+#refreshOrdersBtn:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 45px #00f5ff;
+}
 
 @media only screen and (max-width: 720px){
     header{
