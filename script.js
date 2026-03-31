@@ -162,6 +162,7 @@ if (adminLoginForm) {
 document.addEventListener("DOMContentLoaded", function () {
   function handleRoute() {
     const isAdmin = window.location.hash === "#admin";
+    document.querySelector(".whatsapp-float").style.display = isAdmin ? "none" : "flex";
 
     if (isAdmin) {
       sectionList.forEach((el) => {
