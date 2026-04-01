@@ -208,3 +208,4 @@ if (heroCta) {
     window.scrollTo({ top, behavior: "smooth" });
   });
 }
+
