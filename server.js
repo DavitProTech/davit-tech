@@ -12,9 +12,9 @@ const DATA_FILE = path.resolve(process.cwd(), 'orders.json');
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838';
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '2055975985';
 
-// ტელეგრამზე შეტყობინების გაგზავნის ფუნქცია (native fetch-ით)
+// ტელეგრამზე შეტყობინების გაგზავნის ფუნქცია
 async function sendTelegramNotification(order) {
-  if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN.includes('8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838')) {
+  if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN.includes('aq_chasvit')) {
     console.log('Telegram Bot Token არ არის მითითებული.');
     return;
   }
@@ -25,7 +25,7 @@ async function sendTelegramNotification(order) {
 <b>მომხმარებელი:</b> ${order.name}
 <b>ტელეფონი:</b> ${order.phone}
 <b>სერვისი:</b> ${order.service}
-<b>ფასი:</b> ${order.price}
+<b>ფასი:</b> ${order.price}₾
 <b>მისამართი:</b> ${order.address}
 <b>თარიღი:</b> ${order.date}
 <b>დეტალები:</b> ${order.description || 'არ არის'}
