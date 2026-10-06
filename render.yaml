@@ -10,6 +10,10 @@ services:
         value: production
       - key: PORT
         value: 3000
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ADMIN_CHAT_ID
+        sync: false
     healthCheckPath: /api/orders
     
  

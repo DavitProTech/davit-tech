@@ -63,6 +63,15 @@ The server will start on `http://localhost:3000` by default.
 It listens on `0.0.0.0` so devices on the same local network can reach it.  
 Watch the console log for an additional line showing the machine's IP (e.g. `http://192.168.1.100:3000`).
 
+### Telegram order notifications
+
+Set `TELEGRAM_BOT_TOKEN` and `ADMIN_CHAT_ID` in the server environment. Copy
+`.env.example` as a starting point for local configuration; do not commit the
+real bot token. For Render, add both values in the service's Environment settings.
+The bot must have permission to message the destination chat (start a conversation
+with the bot first for a private chat). Telegram delivery errors are written to
+the server log; order creation remains successful if Telegram is unavailable.
+
 #### Accessing from other devices
 
 - **Desktop (host)**: open `http://localhost:3000` in a browser.

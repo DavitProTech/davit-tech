@@ -1,218 +1,180 @@
-import express from 'express';
-import cors from 'cors';
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
+const API_URL = "https://davit-tech-api.onrender.com";
+const serviceSelect = document.getElementById("serviceSelect");
+const priceDisplay = document.getElementById("priceDisplay");
+const orderForm = document.getElementById("orderForm");
 
-const app = express();
-const PORT = Number(process.env.PORT || 3000);
-const DATA_FILE = path.resolve(process.cwd(), 'orders.json');
+function updatePriceDisplay() {
+  if (!serviceSelect || !priceDisplay) return;
+  const selected = serviceSelect.options[serviceSelect.selectedIndex];
+  const price = selected?.getAttribute("data-price");
+  priceDisplay.innerText = price ? `ფასი: ${price}₾` : "";
+}
 
-// ==========================================
-// 1. TELEGRAM BOT-ის პარამეტრები
-// ჩასვით აქ თქვენი ტოკენი და CHAT ID
-// ==========================================
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838';
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '2055975985';
+serviceSelect?.addEventListener("change", updatePriceDisplay);
+updatePriceDisplay();
 
-// Telegram-ში შეტყობინების გაგზავნის ფუნქცია
-async function sendTelegramNotification(order) {
-  if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN.includes('8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838')) {
-    console.log('Telegram Bot Token არ არის მითითებული.');
-    return;
-  }
+orderForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-  const message = `
-<b> ახალი შეკვეთა! (${order.id})</b>
+  const submitButton = orderForm.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.disabled = true;
 
-<b>მომხმარებელი:</b> ${order.name}
-<b>ტელეფონი:</b> ${order.phone}
-<b>სერვისი:</b> ${order.service}
-<b>ფასი:</b> ${order.price}₾
-<b>მისამართი:</b> ${order.address}
-<b>თარიღი:</b> ${order.date}
-<b>დეტალები:</b> ${order.description || 'არ არის'}
-  `;
+  const selectedOption = serviceSelect?.options[serviceSelect.selectedIndex];
+  const dateInput = document.getElementById("date")?.value || "";
+  const order = {
+    name: document.getElementById("customerName")?.value.trim() || "",
+    phone: document.getElementById("customerPhone")?.value.trim() || "",
+    service: serviceSelect?.value || "",
+    price: selectedOption?.getAttribute("data-price") || "",
+    address: document.getElementById("address")?.value.trim() || "",
+    description: document.getElementById("description")?.value.trim() || "",
+    date: dateInput ? dateInput.replace("T", "  ") : ""
+  };
 
   try {
-    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: ADMIN_CHAT_ID,
-        text: message,
-        parse_mode: 'HTML'
-      })
+    const response = await fetch(`${API_URL}/api/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order)
     });
+    const result = await response.json();
 
-    const data = await response.json();
-    if (!data.ok) {
-      console.error('Telegram API Error:', data.description);
-    } else {
-      console.log(`შეტყობინება გაიგზავნა Telegram-ში (${order.id})`);
+    if (!response.ok || !result.success) {
+      alert("შეცდომა: " + (result.message || "დაფიქსირდა გაურკვეველი შეცდომა"));
+      return;
     }
-  } catch (err) {
-    console.error('Telegram notification error:', err.message);
+
+    alert("შეკვეთა მიღებულია ✅ Order ID: " + result.data.id);
+    orderForm.reset();
+    updatePriceDisplay();
+  } catch (error) {
+    console.error("Order submission error:", error);
+    alert("სერვერთან დაკავშირების შეცდომა. სცადე თავიდან.");
+  } finally {
+    if (submitButton) submitButton.disabled = false;
   }
-}
+});
 
-// ==========================================
-// 2. MIDDLEWARE & APP CONFIG
-// ==========================================
-app.use(cors({
-  origin: [
-    "https://davit-tech.vercel.app", 
-    "https://davit-tech-api.onrender.com", 
-    "http://localhost:3000", 
-    "http://localhost"
-  ]
-}));
-app.use(express.json());
-app.use(express.static(process.cwd()));
+const adminBox = document.getElementById("adminBox");
+const adminLoginForm = document.getElementById("adminLoginForm");
+const adminPanel = document.getElementById("adminPanel");
+const usernameInput = document.getElementById("adminUsername");
+const passwordInput = document.getElementById("adminPassword");
+const sectionList = [
+  document.getElementById("hero"),
+  document.getElementById("services"),
+  document.getElementById("order")
+];
 
-const sendError = (res, status, message) => res.status(status).json({ success: false, message });
-
-// ==========================================
-// 3. HELPER FUNCTIONS (ORDERS FILE)
-// ==========================================
 async function loadOrders() {
-  try {
-    const data = await fs.readFile(DATA_FILE, 'utf8');
-    const orders = JSON.parse(data);
-    return Array.isArray(orders) ? orders : [];
-  } catch (err) {
-    if (err.code === 'ENOENT') return [];
-    console.error('Failed to read orders file:', err);
-    throw err;
-  }
-}
-
-async function saveOrders(orders) {
-  const text = JSON.stringify(orders, null, 2);
-  await fs.writeFile(DATA_FILE, text, 'utf8');
-}
-
-function generateOrderId(existingIds) {
-  let id;
-  do {
-    id = `DT-${Math.floor(10000 + Math.random() * 90000)}`;
-  } while (existingIds && existingIds.has(id));
-  return id;
-}
-
-// ==========================================
-// 4. API ENDPOINTS
-// ==========================================
-
-app.get('/', (req, res) => {
-  res.send('Server is running');
-});
-
-// ყველა შეკვეთის წამოღება (ადმინ პანელისთვის)
-app.get('/api/orders', async (req, res) => {
-  try {
-    const orders = await loadOrders();
-    res.json({ success: true, data: orders });
-  } catch (err) {
-    console.error('GET /api/orders error:', err);
-    sendError(res, 500, 'Failed to load orders');
-  }
-});
-
-// ახალი შეკვეთის დამატება
-app.post('/api/orders', async (req, res) => {
-  const { name, phone, service, price, address, description, date } = req.body || {};
-
-  if (!name || !phone || !service || !price || !address || !date) {
-    return sendError(res, 400, 'Missing required order fields');
-  }
+  const tbody = document.querySelector("#ordersTable tbody");
+  if (!tbody) return;
 
   try {
-    const orders = await loadOrders();
-    const ids = new Set(orders.map((o) => o.id));
-    const id = generateOrderId(ids);
-    const createdAt = new Date().toISOString();
-
-    const newOrder = { 
-      id, 
-      name, 
-      phone, 
-      service, 
-      price, 
-      address, 
-      description: description || '', 
-      date, 
-      createdAt 
-    };
-
-    orders.push(newOrder);
-
-    // 1. ინახავს orders.json ფაილში
-    await saveOrders(orders);
-
-    // 2. აგზავნის შეტყობინებას თქვენს Telegram-ში
-    sendTelegramNotification(newOrder);
-
-    res.status(201).json({ success: true, data: newOrder });
-  } catch (err) {
-    console.error('POST /api/orders error:', err);
-    sendError(res, 500, 'Failed to save order');
-  }
-});
-
-// შეკვეთის წაშლა ID-ით
-app.delete('/api/orders/:id', async (req, res) => {
-  const { id } = req.params;
-  if (!id) return sendError(res, 400, 'Order ID is required');
-
-  try {
-    const orders = await loadOrders();
-    const existing = orders.find((order) => order.id === id);
-    if (!existing) return sendError(res, 404, 'Order not found');
-
-    const filtered = orders.filter((order) => order.id !== id);
-    await saveOrders(filtered);
-
-    res.json({ success: true, message: `Order ${id} deleted` });
-  } catch (err) {
-    console.error('DELETE /api/orders/:id error:', err);
-    sendError(res, 500, 'Failed to delete order');
-  }
-});
-
-// ყველა შეკვეთის წაშლა
-app.delete('/api/orders', async (req, res) => {
-  try {
-    await saveOrders([]);
-    res.json({ success: true, message: 'All orders deleted' });
-  } catch (err) {
-    console.error('DELETE /api/orders error:', err);
-    sendError(res, 500, 'Failed to delete all orders');
-  }
-});
-
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Not found' });
-});
-
-// ==========================================
-// 5. SERVER START
-// ==========================================
-app.listen(PORT, '0.0.0.0', async () => {
-  try {
-    await fs.access(DATA_FILE);
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      await saveOrders([]);
-      console.log('Created missing orders.json file');
+    const response = await fetch(`${API_URL}/api/orders`);
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "Failed to load orders");
     }
+
+    tbody.replaceChildren();
+    const orders = result.data || [];
+    if (orders.length === 0) {
+      const row = tbody.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = 9;
+      cell.textContent = "No orders found";
+      return;
+    }
+
+    orders.forEach((order) => {
+      const row = tbody.insertRow();
+      [
+        order.id,
+        order.service,
+        order.name,
+        order.phone,
+        order.address,
+        `${order.price}₾`,
+        order.description,
+        order.date
+      ].forEach((value) => {
+        row.insertCell().textContent = value || "";
+      });
+
+      const actionCell = row.insertCell();
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.textContent = "წაშლა";
+      deleteButton.addEventListener("click", () => window.deleteOrder(order.id));
+      actionCell.appendChild(deleteButton);
+    });
+  } catch (error) {
+    console.error("Error loading orders:", error);
+    tbody.replaceChildren();
+    const row = tbody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 9;
+    cell.textContent = "Cannot load orders. Server is not running.";
   }
+}
 
-  const localUrl = `http://localhost:${PORT}`;
-  const ip = Object.values(os.networkInterfaces())
-    .flat()
-    .find((i) => i && i.family === 'IPv4' && !i.internal);
+window.deleteOrder = async (orderId) => {
+  try {
+    const response = await fetch(`${API_URL}/api/orders/${encodeURIComponent(orderId)}`, {
+      method: "DELETE"
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "Unknown error");
+    }
+    await loadOrders();
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    alert("Error deleting order: " + error.message);
+  }
+};
 
-  console.log(`Server running on ${localUrl}`);
-  if (ip) console.log(`Accessible on network: http://${ip.address}:${PORT}`);
+document.getElementById("refreshOrdersBtn")?.addEventListener("click", loadOrders);
+
+adminLoginForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  if (passwordInput?.value === "2003" && usernameInput?.value === "admin") {
+    if (adminBox) {
+      adminBox.classList.remove("show");
+      adminBox.style.display = "none";
+    }
+    if (adminPanel) adminPanel.style.display = "block";
+    loadOrders();
+  } else {
+    alert("მომხმარებელი ან პაროლი არასწორია ❌");
+  }
+});
+
+function handleRoute() {
+  const isAdmin = window.location.hash === "#admin";
+  const whatsappButton = document.querySelector(".whatsapp-float");
+  if (whatsappButton) whatsappButton.style.display = isAdmin ? "none" : "flex";
+
+  sectionList.forEach((section) => {
+    if (section) section.style.display = isAdmin ? "none" : "";
+  });
+  if (adminPanel) adminPanel.style.display = "none";
+  if (adminBox) {
+    adminBox.style.display = isAdmin ? "block" : "none";
+    adminBox.classList.toggle("show", isAdmin);
+  }
+}
+
+handleRoute();
+window.addEventListener("hashchange", handleRoute);
+
+document.querySelector("#hero .cta-btn")?.addEventListener("click", () => {
+  const target = document.getElementById("services");
+  if (!target) return;
+
+  const headerHeight = document.querySelector("header")?.offsetHeight || 0;
+  const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
+  window.scrollTo({ top, behavior: "smooth" });
 });
