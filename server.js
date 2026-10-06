@@ -8,8 +8,53 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const DATA_FILE = path.resolve(process.cwd(), 'orders.json');
 
+// --- TELEGRAM BOT-ის პარამეტრები ---
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838';
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '2055975985';
+
+// ტელეგრამზე შეტყობინების გაგზავნის ფუნქცია (native fetch-ით)
+async function sendTelegramNotification(order) {
+  if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN.includes('8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838')) {
+    console.log('Telegram Bot Token არ არის მითითებული.');
+    return;
+  }
+
+  const message = `
+<b> ახალი შეკვეთა! (${order.id})</b>
+
+<b>მომხმარებელი:</b> ${order.name}
+<b>ტელეფონი:</b> ${order.phone}
+<b>სერვისი:</b> ${order.service}
+<b>ფასი:</b> ${order.price}
+<b>მისამართი:</b> ${order.address}
+<b>თარიღი:</b> ${order.date}
+<b>დეტალები:</b> ${order.description || 'არ არის'}
+  `;
+
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: ADMIN_CHAT_ID,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    });
+
+    const data = await response.json();
+    if (!data.ok) {
+      console.error('Telegram API Error:', data.description);
+    } else {
+      console.log(`შეტყობინება წარმატებით გაიგზავნა Telegram-ში (${order.id})`);
+    }
+  } catch (err) {
+    console.error('Telegram notification error:', err.message);
+  }
+}
+
 app.use(cors({
-  origin: ["https://davit-tech.vercel.app/", "https://davit-tech-api.onrender.com/", "http://localhost:3000", "http://localhost"]
+  origin: ["https://davit-tech.vercel.app", "https://davit-tech-api.onrender.com", "http://localhost:3000", "http://localhost"]
 }));
 app.use(express.json());
 app.use(express.static(process.cwd()));
@@ -72,6 +117,9 @@ app.post('/api/orders', async (req, res) => {
     orders.push(newOrder);
 
     await saveOrders(orders);
+
+    // Telegram-ში შეტყობინების გაგზავნა
+    sendTelegramNotification(newOrder);
 
     res.status(201).json({ success: true, data: newOrder });
   } catch (err) {

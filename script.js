@@ -1,211 +1,218 @@
-// ========= PRICE DISPLAY =========
-const serviceSelect = document.getElementById("serviceSelect");
-const priceDisplay = document.getElementById("priceDisplay");
-const API_URL = "https://davit-tech-api.onrender.com";
+import express from 'express';
+import cors from 'cors';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
 
-function updatePriceDisplay() {
-  if (!serviceSelect || !priceDisplay) return;
-  const selected = serviceSelect.options[serviceSelect.selectedIndex];
-  const price = selected ? selected.getAttribute("data-price") : null;
-  priceDisplay.innerText = price ? `ფასი: ${price}₾` : "";
-}
+const app = express();
+const PORT = Number(process.env.PORT || 3000);
+const DATA_FILE = path.resolve(process.cwd(), 'orders.json');
 
-if (serviceSelect) {
-  serviceSelect.addEventListener("change", updatePriceDisplay);
-  updatePriceDisplay();
-}
+// ==========================================
+// 1. TELEGRAM BOT-ის პარამეტრები
+// ჩასვით აქ თქვენი ტოკენი და CHAT ID
+// ==========================================
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838';
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '2055975985';
 
-// ========= ORDER FORM =========
-const orderForm = document.getElementById("orderForm");
+// Telegram-ში შეტყობინების გაგზავნის ფუნქცია
+async function sendTelegramNotification(order) {
+  if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN.includes('8945286990:AAHHt_TKX3PYXa7DASJEq0Y5W809KwYk838')) {
+    console.log('Telegram Bot Token არ არის მითითებული.');
+    return;
+  }
 
-if (orderForm) {
-  orderForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
+  const message = `
+<b> ახალი შეკვეთა! (${order.id})</b>
 
-    const name = document.getElementById("customerName")?.value?.trim() || "";
-    const phone = document.getElementById("customerPhone")?.value?.trim() || "";
-    const service = serviceSelect ? serviceSelect.value : "";
-    const price = serviceSelect
-      ? serviceSelect.options[serviceSelect.selectedIndex]?.getAttribute("data-price") || ""
-      : "";
-    const address = document.getElementById("address")?.value?.trim() || "";
-    const description = document.getElementById("description")?.value?.trim() || "no description";
-    const dateInput = document.getElementById("date")?.value || "";
-    const date = dateInput ? dateInput.split("T").join("  ") : "";
+<b>მომხმარებელი:</b> ${order.name}
+<b>ტელეფონი:</b> ${order.phone}
+<b>სერვისი:</b> ${order.service}
+<b>ფასი:</b> ${order.price}₾
+<b>მისამართი:</b> ${order.address}
+<b>თარიღი:</b> ${order.date}
+<b>დეტალები:</b> ${order.description || 'არ არის'}
+  `;
 
-    try {
-      const response = await fetch(`${API_URL}/api/orders`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, service, price, address, description, date })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        alert("შეკვეთა მიღებულია ✅ Order ID: " + result.data.id);
-        orderForm.reset();
-        updatePriceDisplay();
-      } else {
-        alert("შეცდომა: " + (result.message || "დაფიქსირდა გაურკვეველი შეცდომა"));
-      }
-    } catch (error) {
-      console.error("Order submission error:", error);
-      alert("სერვერთან დაკავშირების შეცდომა. სცადე თავიდან.");
-    }
-  });
-}
-
-// ========= ADMIN PANEL =========
-const adminBox = document.getElementById("adminBox");
-const adminLoginForm = document.getElementById("adminLoginForm");
-const adminPanel = document.getElementById("adminPanel");
-const usernameInput = document.getElementById("adminUsername");
-const passwordInput = document.getElementById("adminPassword");
-const sectionList = [
-  document.getElementById("hero"),
-  document.getElementById("services"),
-  document.getElementById("order"),
-];
-
-function loadOrders() {
-  const tbody = document.querySelector("#ordersTable tbody");
-  if (!tbody) return;
-
-  fetch(`${API_URL}/api/orders`)
-    .then((res) => res.json())
-    .then((result) => {
-      if (!result.success) {
-        console.error("Failed to load orders:", result.message);
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#ff6b6b;">Cannot load orders. Server is not running.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = "";
-      const orders = result.data || [];
-
-      if (orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders found</td></tr>`;
-        return;
-      }
-
-      orders.forEach((order) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${order.id || ""}</td>
-          <td>${order.service || ""}</td>
-          <td>${order.name || ""}</td>
-          <td>${order.phone || ""}</td>
-          <td>${order.address || ""}</td>
-          <td>${order.price || ""}₾</td>
-          <td>${order.description || ""}</td>
-          <td>${order.date || ""}</td>
-          <td><button onclick="deleteOrder('${order.id}')">წაშლა</button></td>
-        `;
-        tbody.appendChild(row);
-      });
-    })
-    .catch((error) => {
-      console.error("Error loading orders:", error);
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#ff6b6b;">Error loading orders</td></tr>`;
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: ADMIN_CHAT_ID,
+        text: message,
+        parse_mode: 'HTML'
+      })
     });
-}
 
-window.deleteOrder = function (orderId) {
-  fetch(`${API_URL}/api/orders/${orderId}`, {
-    method: "DELETE"
-  })
-    .then((res) => res.json())
-    .then((result) => {
-      if (result.success) {
-        loadOrders();
-      } else {
-        alert("Error deleting order: " + (result.message || "Unknown error"));
-      }
-    })
-    .catch((error) => {
-      console.error("Error deleting order:", error);
-      alert("Error deleting order");
-    });
-};
-
-const refreshOrdersBtn = document.getElementById("refreshOrdersBtn");
-
-if (refreshOrdersBtn) {
-  refreshOrdersBtn.addEventListener("click", function () {
-    loadOrders();
-  });
-}
-
-if (adminLoginForm) {
-  adminLoginForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const user = usernameInput ? usernameInput.value : "";
-    const password = passwordInput ? passwordInput.value : "";
-
-    if (password === "2003" && user === "admin") {
-      if (adminBox) {
-        adminBox.classList.remove("show");
-        adminBox.style.display = "none";
-      }
-
-      if (adminPanel) adminPanel.style.display = "block";
-      loadOrders();
+    const data = await response.json();
+    if (!data.ok) {
+      console.error('Telegram API Error:', data.description);
     } else {
-      alert("მომხმარებელი ან პაროლი არასწორია ❌");
+      console.log(`შეტყობინება გაიგზავნა Telegram-ში (${order.id})`);
     }
-  });
+  } catch (err) {
+    console.error('Telegram notification error:', err.message);
+  }
 }
 
-// ========= HASH ADMIN ROUTE =========
-document.addEventListener("DOMContentLoaded", function () {
-  function handleRoute() {
-    const isAdmin = window.location.hash === "#admin";
-    document.querySelector(".whatsapp-float").style.display = isAdmin ? "none" : "flex";
+// ==========================================
+// 2. MIDDLEWARE & APP CONFIG
+// ==========================================
+app.use(cors({
+  origin: [
+    "https://davit-tech.vercel.app", 
+    "https://davit-tech-api.onrender.com", 
+    "http://localhost:3000", 
+    "http://localhost"
+  ]
+}));
+app.use(express.json());
+app.use(express.static(process.cwd()));
 
-    if (isAdmin) {
-      sectionList.forEach((el) => {
-        if (el) el.style.display = "none";
-      });
+const sendError = (res, status, message) => res.status(status).json({ success: false, message });
 
-      if (adminPanel) adminPanel.style.display = "none";
+// ==========================================
+// 3. HELPER FUNCTIONS (ORDERS FILE)
+// ==========================================
+async function loadOrders() {
+  try {
+    const data = await fs.readFile(DATA_FILE, 'utf8');
+    const orders = JSON.parse(data);
+    return Array.isArray(orders) ? orders : [];
+  } catch (err) {
+    if (err.code === 'ENOENT') return [];
+    console.error('Failed to read orders file:', err);
+    throw err;
+  }
+}
 
-      if (adminBox) {
-        adminBox.style.display = "block";
-        adminBox.classList.add("show");
-      }
-    } else {
-      sectionList.forEach((el) => {
-        if (el) el.style.display = "";
-      });
+async function saveOrders(orders) {
+  const text = JSON.stringify(orders, null, 2);
+  await fs.writeFile(DATA_FILE, text, 'utf8');
+}
 
-      if (adminBox) {
-        adminBox.classList.remove("show");
-        adminBox.style.display = "none";
-      }
+function generateOrderId(existingIds) {
+  let id;
+  do {
+    id = `DT-${Math.floor(10000 + Math.random() * 90000)}`;
+  } while (existingIds && existingIds.has(id));
+  return id;
+}
 
-      if (adminPanel) adminPanel.style.display = "none";
+// ==========================================
+// 4. API ENDPOINTS
+// ==========================================
+
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
+
+// ყველა შეკვეთის წამოღება (ადმინ პანელისთვის)
+app.get('/api/orders', async (req, res) => {
+  try {
+    const orders = await loadOrders();
+    res.json({ success: true, data: orders });
+  } catch (err) {
+    console.error('GET /api/orders error:', err);
+    sendError(res, 500, 'Failed to load orders');
+  }
+});
+
+// ახალი შეკვეთის დამატება
+app.post('/api/orders', async (req, res) => {
+  const { name, phone, service, price, address, description, date } = req.body || {};
+
+  if (!name || !phone || !service || !price || !address || !date) {
+    return sendError(res, 400, 'Missing required order fields');
+  }
+
+  try {
+    const orders = await loadOrders();
+    const ids = new Set(orders.map((o) => o.id));
+    const id = generateOrderId(ids);
+    const createdAt = new Date().toISOString();
+
+    const newOrder = { 
+      id, 
+      name, 
+      phone, 
+      service, 
+      price, 
+      address, 
+      description: description || '', 
+      date, 
+      createdAt 
+    };
+
+    orders.push(newOrder);
+
+    // 1. ინახავს orders.json ფაილში
+    await saveOrders(orders);
+
+    // 2. აგზავნის შეტყობინებას თქვენს Telegram-ში
+    sendTelegramNotification(newOrder);
+
+    res.status(201).json({ success: true, data: newOrder });
+  } catch (err) {
+    console.error('POST /api/orders error:', err);
+    sendError(res, 500, 'Failed to save order');
+  }
+});
+
+// შეკვეთის წაშლა ID-ით
+app.delete('/api/orders/:id', async (req, res) => {
+  const { id } = req.params;
+  if (!id) return sendError(res, 400, 'Order ID is required');
+
+  try {
+    const orders = await loadOrders();
+    const existing = orders.find((order) => order.id === id);
+    if (!existing) return sendError(res, 404, 'Order not found');
+
+    const filtered = orders.filter((order) => order.id !== id);
+    await saveOrders(filtered);
+
+    res.json({ success: true, message: `Order ${id} deleted` });
+  } catch (err) {
+    console.error('DELETE /api/orders/:id error:', err);
+    sendError(res, 500, 'Failed to delete order');
+  }
+});
+
+// ყველა შეკვეთის წაშლა
+app.delete('/api/orders', async (req, res) => {
+  try {
+    await saveOrders([]);
+    res.json({ success: true, message: 'All orders deleted' });
+  } catch (err) {
+    console.error('DELETE /api/orders error:', err);
+    sendError(res, 500, 'Failed to delete all orders');
+  }
+});
+
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'Not found' });
+});
+
+// ==========================================
+// 5. SERVER START
+// ==========================================
+app.listen(PORT, '0.0.0.0', async () => {
+  try {
+    await fs.access(DATA_FILE);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      await saveOrders([]);
+      console.log('Created missing orders.json file');
     }
   }
 
-  handleRoute();
-  window.addEventListener("hashchange", handleRoute);
+  const localUrl = `http://localhost:${PORT}`;
+  const ip = Object.values(os.networkInterfaces())
+    .flat()
+    .find((i) => i && i.family === 'IPv4' && !i.internal);
+
+  console.log(`Server running on ${localUrl}`);
+  if (ip) console.log(`Accessible on network: http://${ip.address}:${PORT}`);
 });
-
-// ========= HERO CTA SCROLL =========
-const heroCta = document.querySelector("#hero .cta-btn");
-const header = document.querySelector("header");
-
-if (heroCta) {
-  heroCta.addEventListener("click", () => {
-    const target = document.getElementById("services");
-    if (!target) return;
-
-    const headerHeight = header ? header.offsetHeight : 0;
-    const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
-
-    window.scrollTo({ top, behavior: "smooth" });
-  });
-}
-
