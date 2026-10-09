@@ -372,14 +372,21 @@ border:none;
 /* ========= ADMIN PANEL ========= */
 #adminDashboard table{
 width:100%;
+min-width:1000px;
 border-collapse:collapse;
 margin-top:20px;
+}
+
+#adminDashboard{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
 }
 
 #adminDashboard th, #adminDashboard td{
 padding:15px;
 border-bottom:1px solid rgba(0,255,255,0.2);
 text-align:left;
+vertical-align:top;
 }
 
 #adminDashboard th{
@@ -544,14 +551,9 @@ opacity:0.7;
         height: 100vh;
     }
     /* Compact admin orders table for small screens */
-    #adminDashboard{
-        width:100%;
-        overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-    }
     #adminDashboard table{
         font-size:13px;
-        min-width:600px; /* allow horizontal scroll when necessary */
+        min-width:1000px;
     }
     #adminDashboard th, #adminDashboard td{
         padding:8px;

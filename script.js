@@ -161,6 +161,7 @@ const passwordInput = document.getElementById("adminPassword");
 const sectionList = [
   document.getElementById("hero"),
   document.getElementById("services"),
+  document.getElementById("how-it-works"),
   document.getElementById("order")
 ];
 
