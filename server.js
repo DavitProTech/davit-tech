@@ -8,9 +8,11 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const DATA_FILE = path.resolve(process.cwd(), 'orders.json');
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
+// --- TELEGRAM BOT-ის განახლებული PARAMS ---
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8511295199:AAEoCThYsPfzuJ0BkQu36sldDWaHaAQS-BY';
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '2055975985';
 
+// ტელეგრამზე შეტყობინების გაგზავნა ღილაკებით (Inline Keyboard)
 async function sendTelegramNotification(order) {
   if (!TELEGRAM_BOT_TOKEN || !ADMIN_CHAT_ID) {
     console.error(`Telegram notification skipped for ${order.id}: TELEGRAM_BOT_TOKEN and ADMIN_CHAT_ID must be configured.`);
@@ -25,15 +27,16 @@ async function sendTelegramNotification(order) {
     .replace(/'/g, '&#39;');
 
   const message = `
-<b>ახალი შეკვეთა! (${escapeHtml(order.id)})</b>
+<b>📦 ახალი შეკვეთა! (${escapeHtml(order.id)})</b>
 
-<b>მომხმარებელი:</b> ${escapeHtml(order.name)}
-<b>ტელეფონი:</b> ${escapeHtml(order.phone)}
-<b>სერვისი:</b> ${escapeHtml(order.service)}
-<b>ფასი:</b> ${escapeHtml(order.price)}₾
-<b>მისამართი:</b> ${escapeHtml(order.address)}
-<b>თარიღი:</b> ${escapeHtml(order.date)}
-<b>დეტალები:</b> ${escapeHtml(order.description || 'არ არის')}
+<b>👤 მომხმარებელი:</b> ${escapeHtml(order.name)}
+<b>📞 ტელეფონი:</b> ${escapeHtml(order.phone)}
+<b>🛠️ სერვისი:</b> ${escapeHtml(order.service)}
+<b>💰 ფასი:</b> ${escapeHtml(order.price)}₾
+<b>📍 მისამართი:</b> ${escapeHtml(order.address)}
+<b>📅 თარიღი:</b> ${escapeHtml(order.date)}
+<b>📝 დეტალები:</b> ${escapeHtml(order.description || 'არ არის')}
+<b>📊 სტატუსი:</b> ⏳ მუშავდება
   `;
 
   try {
@@ -43,7 +46,18 @@ async function sendTelegramNotification(order) {
       body: JSON.stringify({
         chat_id: ADMIN_CHAT_ID,
         text: message,
-        parse_mode: 'HTML'
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '✅ დადასტურება', callback_data: `status_confirm_${order.id}` },
+              { text: '🚗 გზაშია', callback_data: `status_ontheway_${order.id}` }
+            ],
+            [
+              { text: '❌ გაუქმება', callback_data: `status_cancel_${order.id}` }
+            ]
+          ]
+        }
       })
     });
 
@@ -98,6 +112,23 @@ app.get('/', (req, res) => {
   res.send('Server is running');
 });
 
+// დაკავებული საათების/დროის მიღება
+app.get('/api/booked-slots', async (req, res) => {
+  const { date } = req.query;
+  if (!date) return sendError(res, 400, 'Date is required');
+
+  try {
+    const orders = await loadOrders();
+    const bookedTimes = orders
+      .filter(o => o.date && o.date.startsWith(date) && o.status !== '❌ გაუქმებულია')
+      .map(o => o.date);
+
+    res.json({ success: true, bookedTimes });
+  } catch (err) {
+    sendError(res, 500, 'Failed to fetch booked slots');
+  }
+});
+
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await loadOrders();
@@ -121,12 +152,10 @@ app.post('/api/orders', async (req, res) => {
     const id = generateOrderId(ids);
     const createdAt = new Date().toISOString();
 
-    const newOrder = { id, name, phone, service, price, address, description: description || '', date, createdAt };
+    const newOrder = { id, name, phone, service, price, address, description: description || '', date, status: '⏳ მუშავდება', createdAt };
     orders.push(newOrder);
 
     await saveOrders(orders);
-
-    // Keep the order successful even if Telegram is temporarily unavailable.
     await sendTelegramNotification(newOrder);
 
     res.status(201).json({ success: true, data: newOrder });
@@ -134,6 +163,63 @@ app.post('/api/orders', async (req, res) => {
     console.error('POST /api/orders error:', err);
     sendError(res, 500, 'Failed to save order');
   }
+});
+
+// Telegram-ის ღილაკებზე დაჭერის დამუშავება (Webhook)
+app.post('/api/telegram-webhook', async (req, res) => {
+  const { callback_query } = req.body || {};
+  if (!callback_query) return res.sendStatus(200);
+
+  const data = callback_query.data;
+  const messageId = callback_query.message.message_id;
+  const chatId = callback_query.message.chat.id;
+
+  if (data && data.startsWith('status_')) {
+    const parts = data.split('_');
+    const action = parts[1];
+    const orderId = parts[2];
+
+    let statusText = '';
+    if (action === 'confirm') statusText = '✅ დადასტურებულია';
+    if (action === 'ontheway') statusText = '🚗 ოსტატი გზაშია';
+    if (action === 'cancel') statusText = '❌ გაუქმებულია';
+
+    try {
+      const orders = await loadOrders();
+      const orderIndex = orders.findIndex(o => o.id === orderId);
+      if (orderIndex !== -1) {
+        orders[orderIndex].status = statusText;
+        await saveOrders(orders);
+      }
+
+      const currentText = callback_query.message.text || '';
+      const updatedText = currentText.replace(/📊 სტატუსი:.*/, `📊 სტატუსი: ${statusText}`);
+
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          message_id: messageId,
+          text: updatedText,
+          reply_markup: callback_query.message.reply_markup
+        })
+      });
+
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callback_query_id: callback_query.id,
+          text: `სტატუსი შეიცვალა: ${statusText}`
+        })
+      });
+    } catch (err) {
+      console.error('Webhook error:', err);
+    }
+  }
+
+  res.sendStatus(200);
 });
 
 app.delete('/api/orders/:id', async (req, res) => {
