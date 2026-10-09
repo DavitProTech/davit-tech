@@ -6,10 +6,12 @@ const dateInput = document.getElementById("date");
 const timeSelect = document.getElementById("timeSelect");
 
 // ხელმისაწვდომი სამუშაო საათები
-const WORKING_HOURS = [
-  "10:00", "11:00", "12:00", "13:00", "14:00", 
-  "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
-];
+const WORKING_HOURS = Array.from({ length: 21 }, (_, index) => {
+  const minutesFromStart = index * 30;
+  const hours = 10 + Math.floor(minutesFromStart / 60);
+  const minutes = minutesFromStart % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+});
 
 function updatePriceDisplay() {
   if (!serviceSelect || !priceDisplay) return;
