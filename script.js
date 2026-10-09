@@ -2,6 +2,14 @@ const API_URL = "https://davit-tech-api.onrender.com";
 const serviceSelect = document.getElementById("serviceSelect");
 const priceDisplay = document.getElementById("priceDisplay");
 const orderForm = document.getElementById("orderForm");
+const dateInput = document.getElementById("date");
+const timeSelect = document.getElementById("timeSelect");
+
+// ხელმისაწვდომი სამუშაო საათები
+const WORKING_HOURS = [
+  "10:00", "11:00", "12:00", "13:00", "14:00", 
+  "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
+];
 
 function updatePriceDisplay() {
   if (!serviceSelect || !priceDisplay) return;
@@ -13,6 +21,51 @@ function updatePriceDisplay() {
 serviceSelect?.addEventListener("change", updatePriceDisplay);
 updatePriceDisplay();
 
+// --- თარიღის არჩევისას დაკავებული საათების შემოწმება ---
+dateInput?.addEventListener("change", async (e) => {
+  const selectedDate = e.target.value;
+  if (!selectedDate) {
+    timeSelect.innerHTML = '<option value="">ჯერ აირჩიეთ თარიღი</option>';
+    timeSelect.disabled = true;
+    return;
+  }
+
+  timeSelect.disabled = true;
+  timeSelect.innerHTML = '<option value="">მოწმდება თავისუფალი დროები...</option>';
+
+  try {
+    const response = await fetch(`${API_URL}/api/booked-slots?date=${selectedDate}`);
+    const result = await response.json();
+
+    const bookedSlots = result.bookedTimes || []; // მაგ: ["2026-10-12 14:00", ...]
+
+    timeSelect.innerHTML = '<option value="">აირჩიეთ სასურველი დრო</option>';
+
+    WORKING_HOURS.forEach((time) => {
+      const fullDateTime = `${selectedDate} ${time}`;
+      const isBooked = bookedSlots.some(slot => slot.includes(time) || slot === fullDateTime);
+
+      const option = document.createElement("option");
+      option.value = time;
+
+      if (isBooked) {
+        option.textContent = `${time} - (დაკავებულია ❌)`;
+        option.disabled = true;
+      } else {
+        option.textContent = `${time} - (თავისუფალია ✅)`;
+      }
+
+      timeSelect.appendChild(option);
+    });
+
+    timeSelect.disabled = false;
+  } catch (error) {
+    console.error("Error fetching booked slots:", error);
+    timeSelect.innerHTML = '<option value="">შეცდომა დროების ჩატვირთვისას</option>';
+  }
+});
+
+// --- შეკვეთის გაგზავნა ---
 orderForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -20,7 +73,17 @@ orderForm?.addEventListener("submit", async (event) => {
   if (submitButton) submitButton.disabled = true;
 
   const selectedOption = serviceSelect?.options[serviceSelect.selectedIndex];
-  const dateInput = document.getElementById("date")?.value || "";
+  const rawDate = dateInput?.value || "";
+  const selectedTime = timeSelect?.value || "";
+
+  if (!rawDate || !selectedTime) {
+    alert("გთხოვთ აირჩიოთ თარიღი და დრო!");
+    if (submitButton) submitButton.disabled = false;
+    return;
+  }
+
+  const combinedDateTime = `${rawDate} ${selectedTime}`;
+
   const order = {
     name: document.getElementById("customerName")?.value.trim() || "",
     phone: document.getElementById("customerPhone")?.value.trim() || "",
@@ -28,7 +91,7 @@ orderForm?.addEventListener("submit", async (event) => {
     price: selectedOption?.getAttribute("data-price") || "",
     address: document.getElementById("address")?.value.trim() || "",
     description: document.getElementById("description")?.value.trim() || "",
-    date: dateInput ? dateInput.replace("T", "  ") : ""
+    date: combinedDateTime
   };
 
   try {
@@ -46,6 +109,8 @@ orderForm?.addEventListener("submit", async (event) => {
 
     alert("შეკვეთა მიღებულია ✅ Order ID: " + result.data.id);
     orderForm.reset();
+    timeSelect.innerHTML = '<option value="">ჯერ აირჩიეთ თარიღი</option>';
+    timeSelect.disabled = true;
     updatePriceDisplay();
   } catch (error) {
     console.error("Order submission error:", error);
@@ -55,6 +120,7 @@ orderForm?.addEventListener("submit", async (event) => {
   }
 });
 
+// --- ადმინ პანელი და მარშრუტიზაცია ---
 const adminBox = document.getElementById("adminBox");
 const adminLoginForm = document.getElementById("adminLoginForm");
 const adminPanel = document.getElementById("adminPanel");
@@ -82,7 +148,7 @@ async function loadOrders() {
     if (orders.length === 0) {
       const row = tbody.insertRow();
       const cell = row.insertCell();
-      cell.colSpan = 9;
+      cell.colSpan = 10;
       cell.textContent = "No orders found";
       return;
     }
@@ -97,7 +163,8 @@ async function loadOrders() {
         order.address,
         `${order.price}₾`,
         order.description,
-        order.date
+        order.date,
+        order.status || '⏳ მუშავდება'
       ].forEach((value) => {
         row.insertCell().textContent = value || "";
       });
@@ -114,7 +181,7 @@ async function loadOrders() {
     tbody.replaceChildren();
     const row = tbody.insertRow();
     const cell = row.insertCell();
-    cell.colSpan = 9;
+    cell.colSpan = 10;
     cell.textContent = "Cannot load orders. Server is not running.";
   }
 }
