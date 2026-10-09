@@ -85,24 +85,6 @@
       <input type="tel" id="customerPhone" placeholder="ტელეფონი" required />
       <input type="text" id="address" placeholder="მისამართი" required />
       <input type="text" id="description" placeholder="აღწერა" />
-          
-      <!-- თარიღის არჩევა -->
-<div class="form-group">
-  <label for="date">აირჩიეთ თარიღი:</label>
-  <input type="date" id="date" name="date" required>
-</div>
-
-<!-- დროის არჩევა (ახალი) -->
-<div class="form-group">
-  <label for="timeSelect">აირჩიეთ დრო:</label>
-  <select id="timeSelect" name="time" required disabled>
-    <option value="">ჯერ აირჩიეთ თარიღი</option>
-  </select>
-</div>
-
-
-      
-
       <select id="serviceSelect" required style="padding:12px;border-radius:10px;">
         <option value="">აირჩიე სერვისი</option>
         <option value="Windows ინსტალაცია" data-price="20">Windows 7-11 ინსტალაცია - 20₾</option>
@@ -113,6 +95,22 @@
         <option value="საოფისე პროგრამები" data-price="30">საოფისე პროგრამები - 30₾</option>
         <option value="Adobe პაკეტი" data-price="50">Adobe პაკეტი - 50₾</option>
       </select>
+      
+      <div class="date-time-block">
+        <div class="form-group">
+          <label for="date">აირჩიეთ თარიღი:</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+        <div class="form-group">
+          <label for="timeSelect">აირჩიეთ დრო:</label>
+          <select id="timeSelect" name="time" required disabled>
+            <option value="">ჯერ აირჩიეთ თარიღი</option>
+          </select>
+        </div>
+      </div>
+
+      
+      
 
       <div id="priceDisplay" style="color:#00f5ff;font-weight:bold;"></div>
       <button type="submit" class="cta-btn">შეკვეთის გაგზავნა</button>
