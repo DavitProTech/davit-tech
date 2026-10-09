@@ -528,3 +528,227 @@ opacity:0.7;
         display:none;
     }
 }
+
+/* ========= PREMIUM FOREST THEME ========= */
+:root{
+    color-scheme:light;
+    --color-page:#f4f1e9;
+    --color-surface:#fff;
+    --color-forest:#304c40;
+    --color-forest-dark:#233a30;
+    --color-brass:#a87c45;
+    --color-text:#293b33;
+    --color-muted:#69736b;
+    --color-border:#ded9cd;
+}
+
+body{
+    background:
+        radial-gradient(ellipse at 50% 0%,rgba(255,255,255,0.98),transparent 58%),
+        linear-gradient(140deg,#f6f4ee 0%,var(--color-page) 100%);
+    background-attachment:fixed;
+    animation:none;
+    color:var(--color-text);
+}
+
+header{
+    background:rgba(250,249,245,0.92);
+    backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--color-border);
+    box-shadow:0 5px 24px rgba(35,46,40,0.06);
+}
+
+.logo{
+    color:var(--color-forest);
+    text-shadow:none;
+    letter-spacing:1px;
+}
+
+nav a{
+    color:#46534c;
+}
+
+nav a:hover{
+    color:var(--color-brass);
+}
+
+.hero h1{
+    color:#243a32;
+    text-shadow:none;
+}
+
+.hero p{
+    color:var(--color-muted);
+    opacity:1;
+    animation:none;
+}
+
+.section h2{
+    color:#263b32;
+    text-shadow:none;
+}
+
+.card{
+    background:rgba(255,255,255,0.78);
+    border:1px solid #e1ddd3;
+    box-shadow:0 14px 36px rgba(39,49,42,0.075);
+    backdrop-filter:blur(12px);
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 20px 42px rgba(39,49,42,0.13);
+}
+
+.card h3{
+    color:var(--color-text);
+}
+
+.card p{
+    color:var(--color-muted);
+}
+
+.cta-btn,
+#refreshOrdersBtn,
+#adminDashboard button,
+.admin-btn{
+    background:var(--color-forest);
+    color:#fff;
+    border:1px solid var(--color-forest);
+    border-radius:10px;
+    box-shadow:0 7px 18px rgba(37,68,54,0.2);
+    transition:all 0.22s ease;
+}
+
+.cta-btn:hover,
+#refreshOrdersBtn:hover,
+#adminDashboard button:hover,
+.admin-btn:hover{
+    background:var(--color-forest-dark);
+    box-shadow:0 10px 24px rgba(37,68,54,0.27);
+    transform:translateY(-2px);
+}
+
+.how-step{
+    background:rgba(255,255,255,0.78);
+    border-color:#e1ddd3;
+    box-shadow:0 14px 36px rgba(39,49,42,0.075);
+    backdrop-filter:blur(12px);
+}
+
+.how-number{
+    background:#b78b55;
+    color:#fff;
+    box-shadow:0 5px 14px rgba(151,111,61,0.24);
+}
+
+.how-step h3{
+    color:var(--color-text);
+}
+
+.how-step p,
+.how-intro{
+    color:var(--color-muted);
+}
+
+.how-connector{
+    color:#b78b55;
+}
+
+.date-time-block{
+    background:rgba(255,255,255,0.68);
+    border-color:var(--color-border);
+}
+
+.date-time-block label{
+    color:#49574f;
+    opacity:1;
+}
+
+#orderForm input,
+#orderForm select{
+    background:var(--color-surface);
+    color:var(--color-text);
+    border:1px solid #dedbd2;
+}
+
+#orderForm input:focus,
+#orderForm select:focus,
+.admin-field input:focus{
+    outline:2px solid rgba(91,125,102,0.24);
+    border-color:#6b8772;
+    box-shadow:none;
+}
+
+.booking-summary{
+    background:linear-gradient(145deg,#fff,#f2f0e8);
+    border-color:var(--color-border);
+    box-shadow:0 12px 32px rgba(39,49,42,0.08);
+    color:var(--color-text);
+}
+
+.booking-summary h3,
+.summary-total strong{
+    color:#7a5b35;
+}
+
+.summary-row span{
+    color:#68736c;
+}
+
+.summary-total{
+    border-color:var(--color-border);
+}
+
+#adminDashboard th{
+    color:#7a5b35;
+}
+
+#adminDashboard th,
+#adminDashboard td{
+    border-bottom-color:var(--color-border);
+}
+
+#adminDashboard tr:hover{
+    background:rgba(48,76,64,0.07);
+}
+
+#adminBox{
+    background:rgba(250,249,245,0.97);
+    border-color:var(--color-border);
+    box-shadow:0 18px 50px rgba(35,46,40,0.2);
+    color:var(--color-text);
+}
+
+#adminBox h2{
+    color:var(--color-forest);
+    text-shadow:none;
+}
+
+.admin-field input{
+    background:#fff;
+    border-color:var(--color-border);
+    color:var(--color-text);
+}
+
+.admin-field input::placeholder{
+    color:#7b857d;
+}
+
+footer{
+    background:#23382f;
+    border-top:1px solid #40564a;
+    color:#e7e3d8;
+    opacity:1;
+}
+
+a[href*="wa.me"]{
+    filter:saturate(0.68);
+    box-shadow:0 5px 16px rgba(34,72,54,0.2);
+}
+
+@media (max-width:720px){
+    header{
+        background:rgba(250,249,245,0.96);
+    }
+}
