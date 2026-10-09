@@ -1,9 +1,11 @@
 const API_URL = "https://davit-tech-api.onrender.com";
 const serviceSelect = document.getElementById("serviceSelect");
-const priceDisplay = document.getElementById("priceDisplay");
 const orderForm = document.getElementById("orderForm");
 const dateInput = document.getElementById("date");
 const timeSelect = document.getElementById("timeSelect");
+const summaryService = document.getElementById("summaryService");
+const summaryDateTime = document.getElementById("summaryDateTime");
+const summaryPrice = document.getElementById("summaryPrice");
 
 // ხელმისაწვდომი სამუშაო საათები
 const WORKING_HOURS = Array.from({ length: 21 }, (_, index) => {
@@ -14,13 +16,37 @@ const WORKING_HOURS = Array.from({ length: 21 }, (_, index) => {
 });
 
 function updatePriceDisplay() {
-  if (!serviceSelect || !priceDisplay) return;
+  if (!serviceSelect || !summaryService || !summaryPrice) return;
   const selected = serviceSelect.options[serviceSelect.selectedIndex];
   const price = selected?.getAttribute("data-price");
-  priceDisplay.innerText = price ? `ფასი: ${price}₾` : "";
+  summaryService.textContent = selected?.value || "არ არის არჩეული";
+  summaryPrice.textContent = price ? `${price}₾` : "—";
+  updateSummaryDateTime();
+}
+
+function updateSummaryDateTime() {
+  if (!summaryDateTime) return;
+  const rawDate = dateInput?.value;
+  const selectedTime = timeSelect?.value;
+
+  if (!rawDate || !selectedTime) {
+    summaryDateTime.textContent = "არ არის არჩეული";
+    return;
+  }
+
+  const [year, month, day] = rawDate.split("-").map(Number);
+  const monthNames = [
+    "იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი",
+    "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი"
+  ];
+  const formattedDate = `${day} ${monthNames[month - 1]}, ${year}`;
+
+  summaryDateTime.textContent = `${formattedDate} · ${selectedTime}`;
 }
 
 serviceSelect?.addEventListener("change", updatePriceDisplay);
+dateInput?.addEventListener("change", updateSummaryDateTime);
+timeSelect?.addEventListener("change", updateSummaryDateTime);
 updatePriceDisplay();
 
 // --- თარიღის არჩევისას დაკავებული საათების შემოწმება ---
@@ -29,11 +55,13 @@ dateInput?.addEventListener("change", async (e) => {
   if (!selectedDate) {
     timeSelect.innerHTML = '<option value="">ჯერ აირჩიეთ თარიღი</option>';
     timeSelect.disabled = true;
+    updateSummaryDateTime();
     return;
   }
 
   timeSelect.disabled = true;
   timeSelect.innerHTML = '<option value="">მოწმდება თავისუფალი დროები...</option>';
+  updateSummaryDateTime();
 
   try {
     const response = await fetch(`${API_URL}/api/booked-slots?date=${selectedDate}`);
@@ -61,9 +89,11 @@ dateInput?.addEventListener("change", async (e) => {
     });
 
     timeSelect.disabled = false;
+    updateSummaryDateTime();
   } catch (error) {
     console.error("Error fetching booked slots:", error);
     timeSelect.innerHTML = '<option value="">შეცდომა დროების ჩატვირთვისას</option>';
+    updateSummaryDateTime();
   }
 });
 

@@ -110,9 +110,21 @@
       </div>
 
       
-      
-
-      <div id="priceDisplay" style="color:#00f5ff;font-weight:bold;"></div>
+      <aside id="bookingSummary" class="booking-summary" aria-live="polite">
+        <h3>შეკვეთის შეჯამება</h3>
+        <div class="summary-row">
+          <span>სერვისი</span>
+          <strong id="summaryService">არ არის არჩეული</strong>
+        </div>
+        <div class="summary-row">
+          <span>თარიღი და დრო</span>
+          <strong id="summaryDateTime">არ არის არჩეული</strong>
+        </div>
+        <div class="summary-total">
+          <span>ჯამი</span>
+          <strong id="summaryPrice">—</strong>
+        </div>
+      </aside>
       <button type="submit" class="cta-btn">შეკვეთის გაგზავნა</button>
     </form>
   </section>

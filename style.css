@@ -199,6 +199,51 @@ border:none;
     width:100%;
 }
 
+.booking-summary{
+    width:100%;
+    padding:16px 18px;
+    border:1px solid rgba(0,245,255,0.38);
+    border-radius:14px;
+    background:linear-gradient(135deg,rgba(0,245,255,0.12),rgba(255,255,255,0.045));
+    color:white;
+    text-align:left;
+    box-shadow:0 0 20px rgba(0,245,255,0.12);
+}
+
+.booking-summary h3{
+    margin:0 0 12px;
+    color:#00f5ff;
+    font-size:16px;
+}
+
+.summary-row,
+.summary-total{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:7px 0;
+    font-size:14px;
+}
+
+.summary-row span{
+    opacity:0.72;
+}
+
+.summary-row strong{
+    text-align:right;
+}
+
+.summary-total{
+    margin-top:6px;
+    padding-top:12px;
+    border-top:1px solid rgba(0,245,255,0.22);
+    font-size:16px;
+}
+
+.summary-total strong{
+    color:#00f5ff;
+}
+
 /* ========= ADMIN PANEL ========= */
 #adminDashboard table{
 width:100%;
@@ -391,4 +436,3 @@ opacity:0.7;
         font-size:12px;
     }
 }
-
