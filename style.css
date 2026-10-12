@@ -1314,19 +1314,26 @@ a[href*="wa.me"]{
 
 .admin-order-status-actions{
     display:flex;
-    min-width:145px;
+    min-width:250px;
     flex-direction:column;
-    align-items:stretch;
-    gap:6px;
+    align-items:flex-start;
+    gap:8px;
+}
+
+.admin-order-quick-actions{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    flex-wrap:wrap;
 }
 
 .admin-panel #adminDashboard .admin-order-status-button,
 .admin-panel #adminDashboard .admin-order-delete-button{
-    padding:7px 9px;
+    padding:7px 8px;
     border-radius:7px;
-    font-size:11px;
+    font-size:10px;
     line-height:1.25;
-    text-align:left;
+    text-align:center;
     white-space:nowrap;
 }
 
@@ -1337,11 +1344,26 @@ a[href*="wa.me"]{
     box-shadow:none;
 }
 
+.admin-panel #adminDashboard .admin-order-status-button.is-selected,
+.admin-panel #adminDashboard .admin-order-status-button.is-selected:hover{
+    border-color:#9cc9a9;
+    background:#e9f5ed;
+    color:#28764a;
+    box-shadow:inset 0 0 0 1px #c4dfca;
+}
+
 .admin-panel #adminDashboard .admin-order-status-button:hover:not(:disabled){
     border-color:#9db9a5;
     background:#eaf2ec;
     box-shadow:none;
     transform:none;
+}
+
+.admin-panel #adminDashboard .admin-order-status-button.is-selected:hover:not(:disabled){
+    border-color:#9cc9a9;
+    background:#e9f5ed;
+    color:#28764a;
+    box-shadow:inset 0 0 0 1px #c4dfca;
 }
 
 .admin-panel #adminDashboard .admin-order-status-button:disabled{
@@ -1362,6 +1384,133 @@ a[href*="wa.me"]{
     background:#fbe9e6;
     box-shadow:none;
     transform:none;
+}
+
+.admin-panel #adminDashboard .admin-order-current-status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    max-width:190px;
+    padding:6px 9px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:700;
+    line-height:1.35;
+}
+
+.admin-order-current-status::before{
+    width:7px;
+    height:7px;
+    flex:none;
+    border-radius:50%;
+    background:currentColor;
+    content:"";
+}
+
+.admin-order-current-status.status-completed{
+    background:#e9f5ed;
+    color:#348157;
+}
+
+.admin-order-current-status.status-inProgress{
+    background:#edf2fb;
+    color:#5375a8;
+}
+
+.admin-order-current-status.status-pending{
+    background:#fff5df;
+    color:#9a7323;
+}
+
+.admin-order-current-status.status-cancelled{
+    background:#f9eaea;
+    color:#ad5d5d;
+}
+
+.admin-order-current-label{
+    color:#77847c;
+    font-size:10px;
+}
+
+.admin-confirm-dialog{
+    width:min(410px,calc(100% - 32px));
+    padding:24px;
+    border:1px solid #e2e6df;
+    border-radius:14px;
+    background:#fff;
+    color:var(--color-text);
+    box-shadow:0 20px 60px rgba(20,37,27,0.3);
+}
+
+.admin-confirm-dialog::backdrop{
+    background:rgba(20,37,27,0.42);
+}
+
+.admin-confirm-dialog h2{
+    margin:0 0 8px;
+    color:var(--color-forest-dark);
+    font-family:inherit;
+    font-size:18px;
+    letter-spacing:0;
+    text-shadow:none;
+}
+
+.admin-confirm-dialog p{
+    margin:0;
+    color:#748078;
+    font-size:13px;
+    line-height:1.5;
+}
+
+.admin-dialog-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:22px;
+}
+
+.admin-dialog-actions button{
+    padding:9px 13px;
+    border:1px solid #dce4de;
+    border-radius:8px;
+    background:#fff;
+    color:#405248;
+    font-size:12px;
+    font-weight:650;
+    cursor:pointer;
+}
+
+.admin-dialog-actions .admin-dialog-confirm{
+    border-color:#a64e44;
+    background:#a64e44;
+    color:#fff;
+}
+
+.admin-dialog-actions .admin-dialog-confirm:hover{
+    border-color:#913e36;
+    background:#913e36;
+}
+
+.admin-status-toast{
+    position:fixed;
+    right:24px;
+    bottom:24px;
+    z-index:2000;
+    max-width:calc(100vw - 32px);
+    padding:12px 16px;
+    border-radius:9px;
+    background:#203c2e;
+    color:#fff;
+    box-shadow:0 8px 26px rgba(20,37,27,0.2);
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(8px);
+    transition:opacity .2s ease,transform .2s ease;
+}
+
+.admin-status-toast.is-visible{
+    opacity:1;
+    transform:translateY(0);
 }
 
 @media (max-width:1100px){

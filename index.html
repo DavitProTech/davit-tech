@@ -289,6 +289,16 @@
     </div>
   </section>
 
+  <dialog id="cancelOrderDialog" class="admin-confirm-dialog" aria-labelledby="cancelOrderTitle">
+    <h2 id="cancelOrderTitle">Cancel this order?</h2>
+    <p>This will mark the order as cancelled. You can change its status again later.</p>
+    <div class="admin-dialog-actions">
+      <button type="button" class="admin-dialog-keep" id="keepOrderButton">Keep order</button>
+      <button type="button" class="admin-dialog-confirm" id="confirmCancelOrderButton">Cancel order</button>
+    </div>
+  </dialog>
+  <div id="adminStatusToast" class="admin-status-toast" role="status" aria-live="polite"></div>
+
   <footer>© 2026 Davit-Tech</footer>
 
   <!-- Hidden Admin Box -->

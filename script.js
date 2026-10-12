@@ -162,6 +162,8 @@ const adminStatsView = document.getElementById("adminStatsView");
 const adminOrdersView = document.getElementById("adminOrdersView");
 const statsPeriod = document.getElementById("statsPeriod");
 let adminOrders = [];
+let pendingCancellationOrderId = null;
+let adminStatusToastTimeout;
 const sectionList = [
   document.getElementById("hero"),
   document.getElementById("services"),
@@ -507,6 +509,28 @@ function clearAdminError() {
   loadError.textContent = "";
 }
 
+function showAdminStatusToast(message) {
+  const toast = document.getElementById("adminStatusToast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  window.clearTimeout(adminStatusToastTimeout);
+  adminStatusToastTimeout = window.setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, 2400);
+}
+
+function getStatusLabel(order) {
+  const status = order.status || "⏳ მუშავდება";
+  const labels = {
+    completed: "დადასტურებულია",
+    inProgress: "ოსტატი გზაშია",
+    pending: "მუშავდება",
+    cancelled: "გაუქმებულია"
+  };
+  return labels[getOrderStatusGroup(order)] || status;
+}
+
 async function loadOrders() {
   const tbody = document.querySelector("#ordersTable tbody");
   if (!tbody) return;
@@ -544,15 +568,28 @@ async function loadOrders() {
         order.address,
         `${order.price}₾`,
         order.description,
-        order.date,
-        order.status || '⏳ მუშავდება'
+        order.date
       ].forEach((value) => {
         row.insertCell().textContent = value || "";
       });
 
+      const statusCell = row.insertCell();
+      const statusGroup = getOrderStatusGroup(order);
+      const statusBadge = document.createElement("span");
+      statusBadge.className = `admin-order-current-status status-${statusGroup}`;
+      statusBadge.textContent = getStatusLabel(order);
+      statusCell.appendChild(statusBadge);
+
       const actionCell = row.insertCell();
       const statusActions = document.createElement("div");
       statusActions.className = "admin-order-status-actions";
+      const quickActions = document.createElement("div");
+      quickActions.className = "admin-order-quick-actions";
+      const selectedAction = {
+        completed: "confirm",
+        inProgress: "ontheway",
+        cancelled: "cancel"
+      }[statusGroup];
       [
         ["confirm", "✅ დადასტურება"],
         ["ontheway", "🚗 გზაშია"],
@@ -561,10 +598,29 @@ async function loadOrders() {
         const statusButton = document.createElement("button");
         statusButton.type = "button";
         statusButton.className = `admin-order-status-button status-action-${status}`;
+        if (status === selectedAction) {
+          statusButton.classList.add("is-selected");
+          statusButton.setAttribute("aria-pressed", "true");
+        } else {
+          statusButton.setAttribute("aria-pressed", "false");
+        }
         statusButton.textContent = label;
-        statusButton.addEventListener("click", () => window.updateOrderStatus(order.id, status));
-        statusActions.appendChild(statusButton);
+        statusButton.addEventListener("click", () => {
+          if (status === "cancel") {
+            pendingCancellationOrderId = order.id;
+            document.getElementById("cancelOrderDialog")?.showModal();
+            return;
+          }
+          window.updateOrderStatus(order.id, status);
+        });
+        quickActions.appendChild(statusButton);
       });
+      statusActions.appendChild(quickActions);
+
+      const currentStatus = document.createElement("span");
+      currentStatus.className = "admin-order-current-label";
+      currentStatus.textContent = `Now: ${getStatusLabel(order)}`;
+      statusActions.appendChild(currentStatus);
 
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
@@ -607,12 +663,29 @@ window.updateOrderStatus = async (orderId, status) => {
     }
     clearAdminError();
     await loadOrders();
+    showAdminStatusToast(`Order ${orderId} · ${getStatusLabel(result.data)}`);
   } catch (error) {
     console.error(`Error updating status for order ${orderId}:`, error);
     showAdminError(`Could not update order ${orderId}: ${error.message}`);
     buttons.forEach((button) => { button.disabled = false; });
   }
 };
+
+document.getElementById("keepOrderButton")?.addEventListener("click", () => {
+  pendingCancellationOrderId = null;
+  document.getElementById("cancelOrderDialog")?.close();
+});
+
+document.getElementById("confirmCancelOrderButton")?.addEventListener("click", () => {
+  const orderId = pendingCancellationOrderId;
+  pendingCancellationOrderId = null;
+  document.getElementById("cancelOrderDialog")?.close();
+  if (orderId) window.updateOrderStatus(orderId, "cancel");
+});
+
+document.getElementById("cancelOrderDialog")?.addEventListener("close", () => {
+  pendingCancellationOrderId = null;
+});
 
 window.deleteOrder = async (orderId) => {
   try {
