@@ -165,6 +165,36 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+app.patch('/api/orders/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const statusByAction = {
+    confirm: '✅ დადასტურებულია',
+    ontheway: '🚗 ოსტატი გზაშია',
+    cancel: '❌ გაუქმებულია'
+  };
+  const action = req.body?.status;
+  const status = typeof action === 'string' && Object.hasOwn(statusByAction, action)
+    ? statusByAction[action]
+    : null;
+
+  if (!id) return sendError(res, 400, 'Order ID is required');
+  if (!status) return sendError(res, 400, 'Invalid order status');
+
+  try {
+    const orders = await loadOrders();
+    const order = orders.find((item) => item.id === id);
+    if (!order) return sendError(res, 404, 'Order not found');
+
+    order.status = status;
+    await saveOrders(orders);
+
+    res.json({ success: true, data: order });
+  } catch (err) {
+    console.error(`PATCH /api/orders/${id}/status error:`, err);
+    sendError(res, 500, 'Failed to update order status');
+  }
+});
+
 // Telegram-ის ღილაკებზე დაჭერის დამუშავება (Webhook)
 app.post('/api/telegram-webhook', async (req, res) => {
   const { callback_query } = req.body || {};

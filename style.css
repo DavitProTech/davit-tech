@@ -1312,6 +1312,58 @@ a[href*="wa.me"]{
     background:var(--color-forest-dark);
 }
 
+.admin-order-status-actions{
+    display:flex;
+    min-width:145px;
+    flex-direction:column;
+    align-items:stretch;
+    gap:6px;
+}
+
+.admin-panel #adminDashboard .admin-order-status-button,
+.admin-panel #adminDashboard .admin-order-delete-button{
+    padding:7px 9px;
+    border-radius:7px;
+    font-size:11px;
+    line-height:1.25;
+    text-align:left;
+    white-space:nowrap;
+}
+
+.admin-panel #adminDashboard .admin-order-status-button{
+    border-color:#dce8df;
+    background:#f5f8f5;
+    color:#34483b;
+    box-shadow:none;
+}
+
+.admin-panel #adminDashboard .admin-order-status-button:hover:not(:disabled){
+    border-color:#9db9a5;
+    background:#eaf2ec;
+    box-shadow:none;
+    transform:none;
+}
+
+.admin-panel #adminDashboard .admin-order-status-button:disabled{
+    cursor:wait;
+    opacity:.55;
+}
+
+.admin-panel #adminDashboard .admin-order-delete-button{
+    margin-top:3px;
+    border-color:#e8c7c1;
+    background:#fff5f3;
+    color:#93493f;
+    box-shadow:none;
+}
+
+.admin-panel #adminDashboard .admin-order-delete-button:hover{
+    border-color:#d9aaa1;
+    background:#fbe9e6;
+    box-shadow:none;
+    transform:none;
+}
+
 @media (max-width:1100px){
     .admin-stat-cards{
         grid-template-columns:repeat(2,minmax(0,1fr));

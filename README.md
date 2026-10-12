@@ -107,6 +107,11 @@ the server log; order creation remains successful if Telegram is unavailable.
 - Body: `{ name, phone, service, price, address, description, date }`
 - Response: `{ success: boolean, data: Order, message: string }`
 
+**PATCH /api/orders/:id/status**
+- Update an order's status from the admin panel
+- Body: `{ status: "confirm" | "ontheway" | "cancel" }`
+- Response: `{ success: boolean, data: Order }`
+
 **DELETE /api/orders/:id**
 - Delete a specific order by ID
 - Response: `{ success: boolean, message: string }`

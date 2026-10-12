@@ -493,6 +493,20 @@ function setAdminView(view) {
   renderAdminStats();
 }
 
+function showAdminError(message) {
+  const loadError = document.getElementById("adminLoadError");
+  if (!loadError) return;
+  loadError.textContent = message;
+  loadError.hidden = false;
+}
+
+function clearAdminError() {
+  const loadError = document.getElementById("adminLoadError");
+  if (!loadError) return;
+  loadError.hidden = true;
+  loadError.textContent = "";
+}
+
 async function loadOrders() {
   const tbody = document.querySelector("#ordersTable tbody");
   if (!tbody) return;
@@ -515,6 +529,8 @@ async function loadOrders() {
       const cell = row.insertCell();
       cell.colSpan = 10;
       cell.textContent = "No orders found";
+      clearAdminError();
+      renderAdminStats();
       return;
     }
 
@@ -535,27 +551,36 @@ async function loadOrders() {
       });
 
       const actionCell = row.insertCell();
+      const statusActions = document.createElement("div");
+      statusActions.className = "admin-order-status-actions";
+      [
+        ["confirm", "✅ დადასტურება"],
+        ["ontheway", "🚗 გზაშია"],
+        ["cancel", "❌ გაუქმება"]
+      ].forEach(([status, label]) => {
+        const statusButton = document.createElement("button");
+        statusButton.type = "button";
+        statusButton.className = `admin-order-status-button status-action-${status}`;
+        statusButton.textContent = label;
+        statusButton.addEventListener("click", () => window.updateOrderStatus(order.id, status));
+        statusActions.appendChild(statusButton);
+      });
+
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
+      deleteButton.className = "admin-order-delete-button";
       deleteButton.textContent = "წაშლა";
       deleteButton.addEventListener("click", () => window.deleteOrder(order.id));
-      actionCell.appendChild(deleteButton);
+      statusActions.appendChild(deleteButton);
+      actionCell.appendChild(statusActions);
     });
-    const loadError = document.getElementById("adminLoadError");
-    if (loadError) {
-      loadError.hidden = true;
-      loadError.textContent = "";
-    }
+    clearAdminError();
     renderAdminStats();
   } catch (error) {
     console.error("Error loading orders:", error);
     adminOrders = [];
     renderAdminStats();
-    const loadError = document.getElementById("adminLoadError");
-    if (loadError) {
-      loadError.textContent = "Could not load orders. Please check the connection and try refreshing.";
-      loadError.hidden = false;
-    }
+    showAdminError("Could not load orders. Please check the connection and try refreshing.");
     tbody.replaceChildren();
     const row = tbody.insertRow();
     const cell = row.insertCell();
@@ -563,6 +588,31 @@ async function loadOrders() {
     cell.textContent = "Cannot load orders. Server is not running.";
   }
 }
+
+window.updateOrderStatus = async (orderId, status) => {
+  const row = [...document.querySelectorAll("#ordersTable tbody tr")]
+    .find((tableRow) => tableRow.cells[0]?.textContent === orderId);
+  const buttons = row ? [...row.querySelectorAll(".admin-order-status-button")] : [];
+  buttons.forEach((button) => { button.disabled = true; });
+
+  try {
+    const response = await fetch(`${API_URL}/api/orders/${encodeURIComponent(orderId)}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "Failed to update order status");
+    }
+    clearAdminError();
+    await loadOrders();
+  } catch (error) {
+    console.error(`Error updating status for order ${orderId}:`, error);
+    showAdminError(`Could not update order ${orderId}: ${error.message}`);
+    buttons.forEach((button) => { button.disabled = false; });
+  }
+};
 
 window.deleteOrder = async (orderId) => {
   try {
