@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ka">
+<html lang="en">  
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,7 +22,7 @@
 
   <section class="hero" id="hero">
     <h1>Davit-Tech Service</h1>
-    <p>მაღალი კლასის ტექნიკური მომსახურება. სწრაფი, სუფთა და პროფესიონალური შედეგი.</p>
+    <p>პროფესიონალური კომპიუტერული დახმარება სახლში ან ოფისში. დიაგნოსტიკა, შეკეთება და პროგრამული უზრუნველყოფა უმაღლესი ხარისხით.</p>
     <button class="cta-btn">იხილეთ დეტალები</button>
   </section>
 
@@ -38,6 +39,7 @@
             <li>Windows ინსტალაცია</li>
             <li>საოფისე პროგრამები</li>
             <li>Adobe პაკეტი</li>
+            <li>პაროლის მოხსნა/სისტემის წვდომის აღდგენა</li>
           </ul>
         </div>
       </article>
@@ -51,6 +53,8 @@
           <ul class="service-category-list">
             <li>PC/Laptop შეკეთება</li>
             <li>დიაგნოსტიკა</li>
+            <li>პაროლის მოხსნა/სისტემის წვდომის აღდგენა</li>
+            <li>მტვრისგან გაწმენდა და თერმოპასტის შეცვლა</li>
           </ul>
         </div>
       </article>
@@ -63,6 +67,8 @@
           <p>სისტემის გაწმენდა და უსაფრთხოების გაუმჯობესება.</p>
           <ul class="service-category-list">
             <li>ვირუსის გაწმენდა</li>
+            <li>წაშლილი/დაკარგული ფაილების აღდგენა</li>
+            <li>პაროლის მოხსნა/სისტემის წვდომის აღდგენა</li>
           </ul>
         </div>
       </article>
@@ -96,10 +102,10 @@
   <section class="section" id="order">
     <h2>შეკვეთა</h2>
     <form id="orderForm" style="max-width:500px;margin:auto;display:flex;flex-direction:column;gap:15px;">
-      <input type="text" id="customerName" placeholder="შენი სახელი და გვარი" required />
+      <input type="text" id="customerName" placeholder="სახელი და გვარი" required />
       <input type="tel" id="customerPhone" placeholder="ტელეფონი" required />
       <input type="text" id="address" placeholder="მისამართი" required />
-      <input type="text" id="description" placeholder="აღწერა" />
+      <input type="text" id="description" placeholder="მოგვიყევით პრობლემის შესახებ (მაგ: არ ირთვება, ქულერი არ მუშაობს)" required  />
       <select id="serviceSelect" required style="padding:12px;border-radius:10px;">
         <option value="">აირჩიე სერვისი</option>
         <option value="Windows ინსტალაცია" data-price="20">Windows 7-11 ინსტალაცია - 20₾</option>
@@ -109,6 +115,10 @@
         <option value="PC/Laptop შეკეთება" data-price="60">PC/Laptop შეკეთება - 60₾</option>
         <option value="საოფისე პროგრამები" data-price="30">საოფისე პროგრამები - 30₾</option>
         <option value="Adobe პაკეტი" data-price="50">Adobe პაკეტი - 50₾</option>
+        <option value="პაროლის მოხსნა/სისტემის წვდომის აღდგენა" data-price="35">პაროლის მოხსნა/სისტემის წვდომის აღდგენა - 35₾</option>
+        <option value="მტვრისგან გაწმენდა და თერმოპასტის შეცვლა" data-price="40">მტვრისგან გაწმენდა და თერმოპასტის შეცვლა - 40₾</option>
+        <option value="წაშლილი/დაკარგული ფაილების აღდგენა (Data Recovery)" data-price="60">წაშლილი/დაკარგული ფაილების აღდგენა (Data Recovery) - 60₾</option>
+        <option value="მცირე ოფისის IT მხარდაჭერა / აუტსორსინგი (თვიური პაკეტი)" data-price="150">მცირე ოფისის IT მხარდაჭერა / აუტსორსინგი (თვიური პაკეტი) - 150₾</option>
       </select>
       
       <div class="date-time-block">
