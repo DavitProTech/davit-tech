@@ -156,31 +156,31 @@
 
   <section class="section admin-panel" id="adminPanel" style="display:none;">
     <div class="admin-shell">
-      <aside class="admin-sidebar" aria-label="Admin navigation">
-        <div class="admin-brand">DAVIT-TECH<span>ADMIN CONSOLE</span></div>
-        <p class="admin-nav-label">WORKSPACE</p>
+      <aside class="admin-sidebar" aria-label="ადმინისტრაციის ნავიგაცია">
+        <div class="admin-brand">DAVIT-TECH<span>ადმინისტრაციის პანელი</span></div>
+        <p class="admin-nav-label">სამუშაო სივრცე</p>
         <nav class="admin-nav">
-          <button type="button" class="admin-nav-button is-active" data-admin-view="orders" aria-pressed="true">▤ <span>Order management</span></button>
-          <button type="button" class="admin-nav-button" data-admin-view="stats" aria-pressed="false">▥ <span>Statistics</span></button>
+          <button type="button" class="admin-nav-button is-active" data-admin-view="orders" aria-pressed="true">▤ <span>შეკვეთების მართვა</span></button>
+          <button type="button" class="admin-nav-button" data-admin-view="stats" aria-pressed="false">▥ <span>სტატისტიკა</span></button>
         </nav>
       </aside>
 
       <div class="admin-content">
         <div class="admin-page-header">
           <div>
-            <p class="admin-breadcrumb">Admin / <span id="adminBreadcrumb">Statistics</span></p>
-            <h1 id="adminPageTitle">Statistics &amp; orders</h1>
-            <p class="admin-page-subtitle">Revenue, order activity, and recent history at a glance.</p>
+            <p class="admin-breadcrumb">ადმინისტრაცია / <span id="adminBreadcrumb">სტატისტიკა</span></p>
+            <h1 id="adminPageTitle">სტატისტიკა და შეკვეთები</h1>
+            <p class="admin-page-subtitle">შემოსავალი, შეკვეთების აქტივობა და ბოლო შეკვეთები ერთ სივრცეში.</p>
           </div>
           <div class="admin-header-actions">
-            <label class="admin-period-label" for="statsPeriod">Period</label>
+            <label class="admin-period-label" for="statsPeriod">პერიოდი</label>
             <select id="statsPeriod" class="admin-period">
-              <option value="7">Last 7 days</option>
-              <option value="30" selected>Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="all">All time</option>
+              <option value="7">ბოლო 7 დღე</option>
+              <option value="30" selected>ბოლო 30 დღე</option>
+              <option value="90">ბოლო 90 დღე</option>
+              <option value="all">მთელი პერიოდი</option>
             </select>
-            <button id="refreshOrdersBtn" type="button">Refresh</button>
+            <button id="refreshOrdersBtn" type="button">განახლება</button>
           </div>
         </div>
 
@@ -189,24 +189,24 @@
         <div id="adminStatsView" class="admin-view">
           <div class="admin-stat-cards">
             <article class="admin-stat-card">
-              <span class="admin-stat-label">Total revenue</span>
+              <span class="admin-stat-label">ჯამური შემოსავალი</span>
               <strong id="totalRevenue" class="admin-stat-value">₾ 0</strong>
-              <span class="admin-stat-note">Excludes cancelled orders</span>
+              <span class="admin-stat-note">გაუქმებული შეკვეთების გარეშე</span>
             </article>
             <article class="admin-stat-card">
-              <span class="admin-stat-label">Total orders</span>
+              <span class="admin-stat-label">შეკვეთების რაოდენობა</span>
               <strong id="totalOrdersCount" class="admin-stat-value">0</strong>
-              <span id="orderPeriodNote" class="admin-stat-note">In selected period</span>
+              <span id="orderPeriodNote" class="admin-stat-note">არჩეულ პერიოდში</span>
             </article>
             <article class="admin-stat-card">
-              <span class="admin-stat-label">Average order value</span>
+              <span class="admin-stat-label">შეკვეთის საშუალო ღირებულება</span>
               <strong id="averageOrderValue" class="admin-stat-value">₾ 0</strong>
-              <span class="admin-stat-note">Excludes cancelled orders</span>
+              <span class="admin-stat-note">გაუქმებული შეკვეთების გარეშე</span>
             </article>
             <article class="admin-stat-card">
-              <span class="admin-stat-label">Pending orders</span>
+              <span class="admin-stat-label">მოლოდინში მყოფი შეკვეთები</span>
               <strong id="pendingOrdersCount" class="admin-stat-value">0</strong>
-              <span class="admin-stat-note">Awaiting completion</span>
+              <span class="admin-stat-note">დამუშავებას ელოდება</span>
             </article>
           </div>
 
@@ -214,23 +214,23 @@
             <section class="admin-card admin-chart-card">
               <div class="admin-card-heading">
                 <div>
-                  <h2>Revenue &amp; order trend</h2>
-                  <p>Daily totals for selected periods; all-time is grouped for readability</p>
+                  <h2>შემოსავლისა და შეკვეთების დინამიკა</h2>
+                  <p>არჩეული პერიოდის დღიური მაჩვენებლები; მთლიანი პერიოდი დაჯგუფებულია უკეთ აღსაქმელად</p>
                 </div>
                 <div class="admin-chart-legend">
-                  <span><i class="legend-dot revenue-dot"></i>Revenue</span>
-                  <span><i class="legend-dot orders-dot"></i>Orders</span>
-                  <span><i class="legend-dot trend-dot"></i>High / low trend</span>
+                  <span><i class="legend-dot revenue-dot"></i>შემოსავალი</span>
+                  <span><i class="legend-dot orders-dot"></i>შეკვეთები</span>
+                  <span><i class="legend-dot trend-dot"></i>მაღალი / დაბალი ტენდენცია</span>
                 </div>
               </div>
-              <div id="adminTrendChart" class="admin-trend-chart" role="img" aria-label="Revenue and order trend chart"></div>
+              <div id="adminTrendChart" class="admin-trend-chart" role="img" aria-label="შემოსავლისა და შეკვეთების დინამიკის გრაფიკი"></div>
             </section>
 
             <section class="admin-card admin-status-card">
               <div class="admin-card-heading">
                 <div>
-                  <h2>Order status</h2>
-                  <p>Breakdown in the selected period</p>
+                  <h2>შეკვეთების სტატუსები</h2>
+                  <p>არჩეული პერიოდის განაწილება</p>
                 </div>
               </div>
               <div id="adminStatusBreakdown"></div>
@@ -240,15 +240,15 @@
           <section class="admin-card admin-history-card">
             <div class="admin-card-heading">
               <div>
-                <h2>Recent order history</h2>
-                <p>Latest orders and their current status</p>
+                <h2>ბოლო შეკვეთები</h2>
+                <p>უახლესი შეკვეთები და მათი მიმდინარე სტატუსები</p>
               </div>
-              <button type="button" class="admin-text-button" data-admin-view="orders">All orders →</button>
+              <button type="button" class="admin-text-button" data-admin-view="orders">ყველა შეკვეთა →</button>
             </div>
             <div class="admin-table-wrap">
               <table class="admin-history-table">
                 <thead>
-                  <tr><th>ORDER</th><th>CUSTOMER</th><th>SERVICE</th><th>DATE</th><th>AMOUNT</th><th>STATUS</th></tr>
+                  <tr><th>შეკვეთა</th><th>მომხმარებელი</th><th>სერვისი</th><th>თარიღი</th><th>თანხა</th><th>სტატუსი</th></tr>
                 </thead>
                 <tbody id="recentOrdersTable"></tbody>
               </table>
@@ -260,15 +260,15 @@
           <section class="admin-card admin-orders-card">
             <div class="admin-card-heading">
               <div>
-                <h2>Order management</h2>
-                <p>Review order details or remove an order from the history.</p>
+                <h2>შეკვეთების მართვა</h2>
+                <p>იხილეთ შეკვეთის დეტალები ან წაშალეთ ის ისტორიიდან.</p>
               </div>
             </div>
             <div id="adminDashboard">
               <table id="ordersTable">
                 <thead>
                   <tr>
-                    <th>Order ID</th>
+                    <th>შეკვეთის ID</th>
                     <th>სერვისი</th>
                     <th>სახელი გვარი</th>
                     <th>ტელეფონი</th>
@@ -290,11 +290,11 @@
   </section>
 
   <dialog id="cancelOrderDialog" class="admin-confirm-dialog" aria-labelledby="cancelOrderTitle">
-    <h2 id="cancelOrderTitle">Cancel this order?</h2>
-    <p>This will mark the order as cancelled. You can change its status again later.</p>
+    <h2 id="cancelOrderTitle">გსურთ შეკვეთის გაუქმება?</h2>
+    <p>შეკვეთას მიენიჭება გაუქმებულის სტატუსი. საჭიროების შემთხვევაში, სტატუსის შეცვლას მოგვიანებითაც შეძლებთ.</p>
     <div class="admin-dialog-actions">
-      <button type="button" class="admin-dialog-keep" id="keepOrderButton">Keep order</button>
-      <button type="button" class="admin-dialog-confirm" id="confirmCancelOrderButton">Cancel order</button>
+      <button type="button" class="admin-dialog-keep" id="keepOrderButton">დატოვება</button>
+      <button type="button" class="admin-dialog-confirm" id="confirmCancelOrderButton">შეკვეთის გაუქმება</button>
     </div>
   </dialog>
   <div id="adminStatusToast" class="admin-status-toast" role="status" aria-live="polite"></div>
@@ -303,18 +303,18 @@
 
   <!-- Hidden Admin Box -->
 <div id="adminBox">
-  <h2>Admin Panel</h2>
+  <h2>ადმინისტრაციის პანელი</h2>
 
   <form id="adminLoginForm" class="admin-form">
     <div class="admin-field">
-      <input type="text" id="adminUsername" placeholder="Username" required />
+      <input type="text" id="adminUsername" placeholder="მომხმარებლის სახელი" required />
     </div>
 
     <div class="admin-field">
-      <input type="password" id="adminPassword" placeholder="Password" required />
+      <input type="password" id="adminPassword" placeholder="პაროლი" required />
     </div>
 
-    <button type="submit" class="admin-btn">Login</button>
+    <button type="submit" class="admin-btn">შესვლა</button>
 
   
     

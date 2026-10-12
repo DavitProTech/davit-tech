@@ -164,6 +164,14 @@ const statsPeriod = document.getElementById("statsPeriod");
 let adminOrders = [];
 let pendingCancellationOrderId = null;
 let adminStatusToastTimeout;
+const georgianMonthNames = [
+  "იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი",
+  "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი"
+];
+const georgianShortMonthNames = [
+  "იან", "თებ", "მარ", "აპრ", "მაი", "ივნ",
+  "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"
+];
 const sectionList = [
   document.getElementById("hero"),
   document.getElementById("services"),
@@ -195,7 +203,7 @@ function getSelectedOrders() {
 }
 
 function formatMoney(amount) {
-  return `₾ ${Number(amount || 0).toLocaleString("en-US", {
+  return `₾ ${Number(amount || 0).toLocaleString("ka-GE", {
     maximumFractionDigits: 2
   })}`;
 }
@@ -215,7 +223,7 @@ function getOrderStatusGroup(order) {
 function formatOrderDate(order) {
   const date = new Date(order.date || order.createdAt || "");
   if (Number.isNaN(date.getTime())) return order.date || "—";
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return `${date.getDate()} ${georgianMonthNames[date.getMonth()]} ${date.getFullYear()}`;
 }
 
 function createSvgElement(name, attributes = {}) {
@@ -279,7 +287,7 @@ function renderTrendChart(orders) {
     viewBox: `0 0 ${width} ${height}`,
     preserveAspectRatio: "none",
     role: "img",
-    "aria-label": `Revenue and order trend for the selected period. Revenue peaks at ${formatMoney(maxRevenue)}.`
+    "aria-label": `არჩეული პერიოდის შემოსავლისა და შეკვეთების დინამიკა. მაქსიმალური შემოსავალი: ${formatMoney(maxRevenue)}.`
   });
 
   const defs = createSvgElement("defs");
@@ -350,7 +358,7 @@ function renderTrendChart(orders) {
       class: "admin-chart-axis admin-chart-date",
       "text-anchor": index === 0 ? "start" : index === labelCount - 1 ? "end" : "middle"
     });
-    label.textContent = labelDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    label.textContent = `${labelDate.getDate()} ${georgianShortMonthNames[labelDate.getMonth()]}`;
     svg.appendChild(label);
   }
 
@@ -366,10 +374,10 @@ function renderOrderStatus(orders) {
   orders.forEach((order) => { counts[getOrderStatusGroup(order)] += 1; });
   const total = orders.length;
   const categories = [
-    ["completed", "Confirmed"],
-    ["inProgress", "In progress"],
-    ["pending", "Pending"],
-    ["cancelled", "Cancelled"]
+    ["completed", "დადასტურებული"],
+    ["inProgress", "გზაშია"],
+    ["pending", "მოლოდინში"],
+    ["cancelled", "გაუქმებული"]
   ];
 
   const track = document.createElement("div");
@@ -404,7 +412,7 @@ function renderOrderStatus(orders) {
 
   const note = document.createElement("p");
   note.className = "admin-status-note";
-  note.textContent = `${counts.cancelled} cancelled ${counts.cancelled === 1 ? "order" : "orders"} excluded from revenue`;
+  note.textContent = `გაუქმებული შეკვეთები შემოსავალში არ არის გათვალისწინებული (${counts.cancelled})`;
   container.appendChild(note);
 }
 
@@ -421,7 +429,7 @@ function renderRecentOrders(orders) {
     const row = tbody.insertRow();
     const cell = row.insertCell();
     cell.colSpan = 6;
-    cell.textContent = "No orders in this period.";
+    cell.textContent = "ამ პერიოდში შეკვეთები არ არის.";
     return;
   }
 
@@ -430,7 +438,7 @@ function renderRecentOrders(orders) {
     const status = document.createElement("span");
     const statusGroup = getOrderStatusGroup(order);
     status.className = `admin-status-pill status-${statusGroup}`;
-    status.textContent = order.status || "⏳ მუშავდება";
+    status.textContent = getStatusLabel(order);
     [
       order.id,
       order.name,
@@ -482,12 +490,12 @@ function setAdminView(view) {
   const title = document.getElementById("adminPageTitle");
   const breadcrumb = document.getElementById("adminBreadcrumb");
   const subtitle = document.querySelector(".admin-page-subtitle");
-  if (title) title.textContent = showStats ? "Statistics & orders" : "Order management";
-  if (breadcrumb) breadcrumb.textContent = showStats ? "Statistics" : "Orders";
+  if (title) title.textContent = showStats ? "სტატისტიკა და შეკვეთები" : "შეკვეთების მართვა";
+  if (breadcrumb) breadcrumb.textContent = showStats ? "სტატისტიკა" : "შეკვეთები";
   if (subtitle) {
     subtitle.textContent = showStats
-      ? "Revenue, order activity, and recent history at a glance."
-      : "Review customer requests and manage your order history.";
+      ? "შემოსავალი, შეკვეთების აქტივობა და ბოლო შეკვეთები ერთ სივრცეში."
+      : "იხილეთ მომხმარებლების შეკვეთები და მართეთ მათი სტატუსები.";
   }
   const periodLabel = document.querySelector(".admin-period-label");
   if (periodLabel) periodLabel.hidden = !showStats;
@@ -531,6 +539,20 @@ function getStatusLabel(order) {
   return labels[getOrderStatusGroup(order)] || status;
 }
 
+function getAdminErrorMessage(error, fallback) {
+  const messages = {
+    "Failed to fetch": "სერვერთან დაკავშირება ვერ მოხერხდა.",
+    "Failed to load orders": "შეკვეთების ჩატვირთვა ვერ მოხერხდა.",
+    "Invalid orders response": "სერვერიდან მიღებული შეკვეთების მონაცემები არასწორია.",
+    "Failed to update order status": "შეკვეთის სტატუსის განახლება ვერ მოხერხდა.",
+    "Order not found": "შეკვეთა ვერ მოიძებნა.",
+    "Invalid order status": "შეკვეთის სტატუსი არასწორია.",
+    "Failed to delete order": "შეკვეთის წაშლა ვერ მოხერხდა.",
+    "Unknown error": "დაფიქსირდა უცნობი შეცდომა."
+  };
+  return messages[error?.message] || fallback;
+}
+
 async function loadOrders() {
   const tbody = document.querySelector("#ordersTable tbody");
   if (!tbody) return;
@@ -552,7 +574,7 @@ async function loadOrders() {
       const row = tbody.insertRow();
       const cell = row.insertCell();
       cell.colSpan = 10;
-      cell.textContent = "No orders found";
+      cell.textContent = "შეკვეთები არ მოიძებნა.";
       clearAdminError();
       renderAdminStats();
       return;
@@ -619,7 +641,7 @@ async function loadOrders() {
 
       const currentStatus = document.createElement("span");
       currentStatus.className = "admin-order-current-label";
-      currentStatus.textContent = `Now: ${getStatusLabel(order)}`;
+      currentStatus.textContent = `მიმდინარე სტატუსი: ${getStatusLabel(order)}`;
       statusActions.appendChild(currentStatus);
 
       const deleteButton = document.createElement("button");
@@ -636,12 +658,12 @@ async function loadOrders() {
     console.error("Error loading orders:", error);
     adminOrders = [];
     renderAdminStats();
-    showAdminError("Could not load orders. Please check the connection and try refreshing.");
+    showAdminError(getAdminErrorMessage(error, "შეკვეთების ჩატვირთვა ვერ მოხერხდა. შეამოწმეთ კავშირი და სცადეთ ხელახლა."));
     tbody.replaceChildren();
     const row = tbody.insertRow();
     const cell = row.insertCell();
     cell.colSpan = 10;
-    cell.textContent = "Cannot load orders. Server is not running.";
+    cell.textContent = "შეკვეთების ჩატვირთვა ვერ მოხერხდა. შეამოწმეთ სერვერთან კავშირი.";
   }
 }
 
@@ -663,10 +685,10 @@ window.updateOrderStatus = async (orderId, status) => {
     }
     clearAdminError();
     await loadOrders();
-    showAdminStatusToast(`Order ${orderId} · ${getStatusLabel(result.data)}`);
+    showAdminStatusToast(`შეკვეთა ${orderId} · ${getStatusLabel(result.data)}`);
   } catch (error) {
     console.error(`Error updating status for order ${orderId}:`, error);
-    showAdminError(`Could not update order ${orderId}: ${error.message}`);
+    showAdminError(`${getAdminErrorMessage(error, "შეკვეთის სტატუსის განახლება ვერ მოხერხდა.")} (შეკვეთა ${orderId})`);
     buttons.forEach((button) => { button.disabled = false; });
   }
 };
@@ -698,8 +720,8 @@ window.deleteOrder = async (orderId) => {
     }
     await loadOrders();
   } catch (error) {
-    console.error("Error deleting order:", error);
-    alert("Error deleting order: " + error.message);
+    console.error(`Error deleting order ${orderId}:`, error);
+    showAdminError(`${getAdminErrorMessage(error, "შეკვეთის წაშლა ვერ მოხერხდა.")} (შეკვეთა ${orderId})`);
   }
 };
 
