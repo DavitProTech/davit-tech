@@ -67,7 +67,7 @@ dateInput?.addEventListener("change", async (e) => {
     const response = await fetch(`${API_URL}/api/booked-slots?date=${selectedDate}`);
     const result = await response.json();
 
-    const bookedSlots = result.bookedTimes || []; // მაგ: ["2026-10-12 14:00", ...]
+    const bookedSlots = result.bookedTimes || []; 
 
     timeSelect.innerHTML = '<option value="">აირჩიეთ სასურველი დრო</option>';
 
@@ -79,10 +79,10 @@ dateInput?.addEventListener("change", async (e) => {
       option.value = time;
 
       if (isBooked) {
-        option.textContent = `${time} - (დაკავებულია ❌)`;
+        option.textContent = `${time} (დაკავებულია ❌)`;
         option.disabled = true;
       } else {
-        option.textContent = `${time} - (თავისუფალია ✅)`;
+        option.textContent = `${time} (თავისუფალია ✅)`;
       }
 
       timeSelect.appendChild(option);
@@ -158,12 +158,340 @@ const adminLoginForm = document.getElementById("adminLoginForm");
 const adminPanel = document.getElementById("adminPanel");
 const usernameInput = document.getElementById("adminUsername");
 const passwordInput = document.getElementById("adminPassword");
+const adminStatsView = document.getElementById("adminStatsView");
+const adminOrdersView = document.getElementById("adminOrdersView");
+const statsPeriod = document.getElementById("statsPeriod");
+let adminOrders = [];
 const sectionList = [
   document.getElementById("hero"),
   document.getElementById("services"),
   document.getElementById("how-it-works"),
   document.getElementById("order")
 ];
+
+function getOrderDate(order) {
+  const parseDate = (value) => {
+    if (!value) return null;
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+  return parseDate(order.createdAt) || parseDate(order.date);
+}
+
+function getSelectedOrders() {
+  if (statsPeriod?.value === "all") return adminOrders;
+
+  const days = Number(statsPeriod?.value) || 30;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - days + 1);
+
+  return adminOrders.filter((order) => {
+    const date = getOrderDate(order);
+    return date && date >= start && date <= new Date();
+  });
+}
+
+function formatMoney(amount) {
+  return `₾ ${Number(amount || 0).toLocaleString("en-US", {
+    maximumFractionDigits: 2
+  })}`;
+}
+
+function isCancelledOrder(order) {
+  return (order.status || "").includes("❌") || /cancel/i.test(order.status || "");
+}
+
+function getOrderStatusGroup(order) {
+  const status = order.status || "";
+  if (isCancelledOrder(order)) return "cancelled";
+  if (status.includes("✅") || /confirm|complete|დადასტურებულ/i.test(status)) return "completed";
+  if (status.includes("🚗") || /progress|გზაში/i.test(status)) return "inProgress";
+  return "pending";
+}
+
+function formatOrderDate(order) {
+  const date = new Date(order.date || order.createdAt || "");
+  if (Number.isNaN(date.getTime())) return order.date || "—";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function createSvgElement(name, attributes = {}) {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+  Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+  return element;
+}
+
+function renderTrendChart(orders) {
+  const container = document.getElementById("adminTrendChart");
+  if (!container) return;
+  container.replaceChildren();
+
+  const range = statsPeriod?.value === "all" ? 30 : Number(statsPeriod?.value) || 30;
+  const datedOrders = orders
+    .map((order) => ({ order, date: getOrderDate(order) }))
+    .filter((entry) => entry.date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - range + 1);
+
+  if (statsPeriod?.value === "all" && datedOrders.length) {
+    const earliestDate = datedOrders.reduce(
+      (earliest, entry) => Math.min(earliest, entry.date.getTime()),
+      Number.POSITIVE_INFINITY
+    );
+    startDate = new Date(earliestDate);
+    startDate.setHours(0, 0, 0, 0);
+  }
+
+  const daySpan = Math.max(1, Math.floor((today - startDate) / 86400000) + 1);
+  const maxBuckets = statsPeriod?.value === "all" ? 30 : 90;
+  const bucketCount = Math.min(daySpan, maxBuckets);
+  const buckets = Array.from({ length: bucketCount }, () => ({ revenue: 0, orders: 0 }));
+  const bucketForDate = (date) => {
+    const day = Math.floor((date - startDate) / 86400000);
+    return Math.min(bucketCount - 1, Math.max(0, Math.floor(day * bucketCount / daySpan)));
+  };
+
+  datedOrders.forEach(({ order, date }) => {
+    if (date < startDate || date > new Date()) return;
+    const bucket = buckets[bucketForDate(date)];
+    bucket.orders += 1;
+    if (!isCancelledOrder(order)) bucket.revenue += Number.parseFloat(order.price) || 0;
+  });
+
+  const width = 680;
+  const height = 230;
+  const left = 48;
+  const right = 640;
+  const top = 20;
+  const bottom = 180;
+  const maxRevenue = Math.max(1, ...buckets.map((bucket) => bucket.revenue));
+  const revenueCeiling = Math.ceil(maxRevenue / 100) * 100 || 100;
+  const maxOrders = Math.max(1, ...buckets.map((bucket) => bucket.orders));
+  const xForIndex = (index) => left + (bucketCount < 2 ? 0 : index * (right - left) / (bucketCount - 1));
+  const yForRevenue = (value) => bottom - value / revenueCeiling * (bottom - top);
+  const yForOrders = (value) => bottom - value / maxOrders * (bottom - top);
+  const svg = createSvgElement("svg", {
+    viewBox: `0 0 ${width} ${height}`,
+    preserveAspectRatio: "none",
+    role: "img",
+    "aria-label": `Revenue and order trend for the selected period. Revenue peaks at ${formatMoney(maxRevenue)}.`
+  });
+
+  const defs = createSvgElement("defs");
+  const gradient = createSvgElement("linearGradient", {
+    id: "adminRevenueGradient",
+    x1: "0",
+    x2: "0",
+    y1: "0",
+    y2: "1"
+  });
+  gradient.append(
+    createSvgElement("stop", { offset: "0%", "stop-color": "#39a96f", "stop-opacity": ".2" }),
+    createSvgElement("stop", { offset: "100%", "stop-color": "#39a96f", "stop-opacity": "0" })
+  );
+  defs.appendChild(gradient);
+  svg.appendChild(defs);
+
+  for (let index = 0; index <= 3; index += 1) {
+    const y = top + (bottom - top) * index / 3;
+    svg.appendChild(createSvgElement("line", {
+      x1: left,
+      y1: y,
+      x2: right,
+      y2: y,
+      class: "admin-chart-gridline"
+    }));
+    const axisLabel = createSvgElement("text", { x: 0, y: y + 4, class: "admin-chart-axis" });
+    axisLabel.textContent = `₾${Math.round(revenueCeiling * (3 - index) / 3)}`;
+    svg.appendChild(axisLabel);
+    const orderLabel = createSvgElement("text", {
+      x: right + 8,
+      y: y + 4,
+      class: "admin-chart-axis admin-chart-right-axis"
+    });
+    orderLabel.textContent = String(Math.round(maxOrders * (3 - index) / 3));
+    svg.appendChild(orderLabel);
+  }
+
+  const revenuePoints = buckets.map((bucket, index) => [xForIndex(index), yForRevenue(bucket.revenue)]);
+  const orderPoints = buckets.map((bucket, index) => [xForIndex(index), yForOrders(bucket.orders)]);
+  const trendPoints = (mode) => buckets.map((_, index) => {
+    const nearby = buckets.slice(Math.max(0, index - 2), Math.min(buckets.length, index + 3));
+    const values = nearby.map((bucket) => bucket.revenue);
+    return [xForIndex(index), yForRevenue(mode === "high" ? Math.max(...values) : Math.min(...values))];
+  });
+  const pointsToPath = (points) => points
+    .map(([x, y], index) => `${index ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`)
+    .join(" ");
+  const revenuePath = pointsToPath(revenuePoints);
+  const areaPath = `${revenuePath} L${right} ${bottom} L${left} ${bottom} Z`;
+
+  svg.append(
+    createSvgElement("path", { d: areaPath, fill: "url(#adminRevenueGradient)" }),
+    createSvgElement("path", { d: pointsToPath(trendPoints("high")), class: "admin-chart-high-trend" }),
+    createSvgElement("path", { d: pointsToPath(trendPoints("low")), class: "admin-chart-low-trend" }),
+    createSvgElement("path", { d: revenuePath, class: "admin-chart-revenue" }),
+    createSvgElement("path", { d: pointsToPath(orderPoints), class: "admin-chart-orders" })
+  );
+
+  const labelCount = Math.min(5, bucketCount);
+  for (let index = 0; index < labelCount; index += 1) {
+    const bucketIndex = Math.round(index * (bucketCount - 1) / Math.max(1, labelCount - 1));
+    const labelDate = new Date(startDate);
+    labelDate.setDate(labelDate.getDate() + Math.floor(bucketIndex * daySpan / bucketCount));
+    const label = createSvgElement("text", {
+      x: xForIndex(bucketIndex),
+      y: 211,
+      class: "admin-chart-axis admin-chart-date",
+      "text-anchor": index === 0 ? "start" : index === labelCount - 1 ? "end" : "middle"
+    });
+    label.textContent = labelDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    svg.appendChild(label);
+  }
+
+  container.appendChild(svg);
+}
+
+function renderOrderStatus(orders) {
+  const container = document.getElementById("adminStatusBreakdown");
+  if (!container) return;
+  container.replaceChildren();
+
+  const counts = { completed: 0, inProgress: 0, pending: 0, cancelled: 0 };
+  orders.forEach((order) => { counts[getOrderStatusGroup(order)] += 1; });
+  const total = orders.length;
+  const categories = [
+    ["completed", "Confirmed"],
+    ["inProgress", "In progress"],
+    ["pending", "Pending"],
+    ["cancelled", "Cancelled"]
+  ];
+
+  const track = document.createElement("div");
+  track.className = "admin-status-track";
+  categories.forEach(([key, label]) => {
+    const segment = document.createElement("span");
+    segment.className = `admin-status-segment status-${key}`;
+    segment.style.width = `${total ? counts[key] / total * 100 : 0}%`;
+    segment.setAttribute("aria-label", `${label}: ${counts[key]}`);
+    track.appendChild(segment);
+  });
+  container.appendChild(track);
+
+  const list = document.createElement("div");
+  list.className = "admin-status-list";
+  categories.forEach(([key, label]) => {
+    const row = document.createElement("div");
+    row.className = "admin-status-row";
+    const name = document.createElement("span");
+    name.className = "admin-status-name";
+    const dot = document.createElement("i");
+    dot.className = `admin-status-dot status-${key}`;
+    const value = document.createElement("span");
+    value.textContent = label;
+    name.append(dot, value);
+    const count = document.createElement("strong");
+    count.textContent = String(counts[key]);
+    row.append(name, count);
+    list.appendChild(row);
+  });
+  container.appendChild(list);
+
+  const note = document.createElement("p");
+  note.className = "admin-status-note";
+  note.textContent = `${counts.cancelled} cancelled ${counts.cancelled === 1 ? "order" : "orders"} excluded from revenue`;
+  container.appendChild(note);
+}
+
+function renderRecentOrders(orders) {
+  const tbody = document.getElementById("recentOrdersTable");
+  if (!tbody) return;
+  tbody.replaceChildren();
+
+  const recentOrders = [...orders]
+    .sort((first, second) => (getOrderDate(second)?.getTime() || 0) - (getOrderDate(first)?.getTime() || 0))
+    .slice(0, 5);
+
+  if (!recentOrders.length) {
+    const row = tbody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 6;
+    cell.textContent = "No orders in this period.";
+    return;
+  }
+
+  recentOrders.forEach((order) => {
+    const row = tbody.insertRow();
+    const status = document.createElement("span");
+    const statusGroup = getOrderStatusGroup(order);
+    status.className = `admin-status-pill status-${statusGroup}`;
+    status.textContent = order.status || "⏳ მუშავდება";
+    [
+      order.id,
+      order.name,
+      order.service,
+      formatOrderDate(order),
+      formatMoney(order.price),
+      status
+    ].forEach((value, index) => {
+      const cell = row.insertCell();
+      if (index === 0) cell.className = "admin-history-id";
+      if (index === 4) cell.className = "admin-history-amount";
+      if (value instanceof Node) cell.appendChild(value);
+      else cell.textContent = value || "—";
+    });
+  });
+}
+
+function renderAdminStats() {
+  const orders = getSelectedOrders();
+  const billableOrders = orders.filter((order) => !isCancelledOrder(order));
+  const totalRevenue = billableOrders.reduce((sum, order) => sum + (Number.parseFloat(order.price) || 0), 0);
+  const totalOrders = orders.length;
+  const pendingOrders = orders.filter((order) => getOrderStatusGroup(order) === "pending").length;
+
+  document.getElementById("totalRevenue").textContent = formatMoney(totalRevenue);
+  document.getElementById("totalOrdersCount").textContent = String(totalOrders);
+  document.getElementById("averageOrderValue").textContent = formatMoney(
+    billableOrders.length ? totalRevenue / billableOrders.length : 0
+  );
+  document.getElementById("pendingOrdersCount").textContent = String(pendingOrders);
+  renderTrendChart(orders);
+  renderOrderStatus(orders);
+  renderRecentOrders(orders);
+}
+
+function setAdminView(view) {
+  const showStats = view === "stats";
+  if (adminStatsView) adminStatsView.hidden = !showStats;
+  if (adminOrdersView) adminOrdersView.hidden = showStats;
+
+  document.querySelectorAll("[data-admin-view]").forEach((button) => {
+    const isActive = button.dataset.adminView === view;
+    if (button.classList.contains("admin-nav-button")) {
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    }
+  });
+
+  const title = document.getElementById("adminPageTitle");
+  const breadcrumb = document.getElementById("adminBreadcrumb");
+  const subtitle = document.querySelector(".admin-page-subtitle");
+  if (title) title.textContent = showStats ? "Statistics & orders" : "Order management";
+  if (breadcrumb) breadcrumb.textContent = showStats ? "Statistics" : "Orders";
+  if (subtitle) {
+    subtitle.textContent = showStats
+      ? "Revenue, order activity, and recent history at a glance."
+      : "Review customer requests and manage your order history.";
+  }
+  const periodLabel = document.querySelector(".admin-period-label");
+  if (periodLabel) periodLabel.hidden = !showStats;
+  if (statsPeriod) statsPeriod.hidden = !showStats;
+  renderAdminStats();
+}
 
 async function loadOrders() {
   const tbody = document.querySelector("#ordersTable tbody");
@@ -176,9 +504,13 @@ async function loadOrders() {
       throw new Error(result.message || "Failed to load orders");
     }
 
+    if (!Array.isArray(result.data)) {
+      throw new Error("Invalid orders response");
+    }
+
+    adminOrders = result.data;
     tbody.replaceChildren();
-    const orders = result.data || [];
-    if (orders.length === 0) {
+    if (adminOrders.length === 0) {
       const row = tbody.insertRow();
       const cell = row.insertCell();
       cell.colSpan = 10;
@@ -186,7 +518,7 @@ async function loadOrders() {
       return;
     }
 
-    orders.forEach((order) => {
+    adminOrders.forEach((order) => {
       const row = tbody.insertRow();
       [
         order.id,
@@ -209,8 +541,21 @@ async function loadOrders() {
       deleteButton.addEventListener("click", () => window.deleteOrder(order.id));
       actionCell.appendChild(deleteButton);
     });
+    const loadError = document.getElementById("adminLoadError");
+    if (loadError) {
+      loadError.hidden = true;
+      loadError.textContent = "";
+    }
+    renderAdminStats();
   } catch (error) {
     console.error("Error loading orders:", error);
+    adminOrders = [];
+    renderAdminStats();
+    const loadError = document.getElementById("adminLoadError");
+    if (loadError) {
+      loadError.textContent = "Could not load orders. Please check the connection and try refreshing.";
+      loadError.hidden = false;
+    }
     tbody.replaceChildren();
     const row = tbody.insertRow();
     const cell = row.insertCell();
@@ -236,6 +581,10 @@ window.deleteOrder = async (orderId) => {
 };
 
 document.getElementById("refreshOrdersBtn")?.addEventListener("click", loadOrders);
+document.querySelectorAll("[data-admin-view]").forEach((button) => {
+  button.addEventListener("click", () => setAdminView(button.dataset.adminView));
+});
+statsPeriod?.addEventListener("change", renderAdminStats);
 
 adminLoginForm?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -246,6 +595,7 @@ adminLoginForm?.addEventListener("submit", (event) => {
       adminBox.style.display = "none";
     }
     if (adminPanel) adminPanel.style.display = "block";
+    setAdminView("orders");
     loadOrders();
   } else {
     alert("მომხმარებელი ან პაროლი არასწორია ❌");

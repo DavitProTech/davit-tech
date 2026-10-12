@@ -154,30 +154,138 @@
     </form>
   </section>
 
-  <section class="section" id="adminPanel" style="display:none;">
-    <h2>Order</h2>
-    <button id="refreshOrdersBtn">Refresh</button>
+  <section class="section admin-panel" id="adminPanel" style="display:none;">
+    <div class="admin-shell">
+      <aside class="admin-sidebar" aria-label="Admin navigation">
+        <div class="admin-brand">DAVIT-TECH<span>ADMIN CONSOLE</span></div>
+        <p class="admin-nav-label">WORKSPACE</p>
+        <nav class="admin-nav">
+          <button type="button" class="admin-nav-button is-active" data-admin-view="orders" aria-pressed="true">▤ <span>Order management</span></button>
+          <button type="button" class="admin-nav-button" data-admin-view="stats" aria-pressed="false">▥ <span>Statistics</span></button>
+        </nav>
+      </aside>
 
-   
+      <div class="admin-content">
+        <div class="admin-page-header">
+          <div>
+            <p class="admin-breadcrumb">Admin / <span id="adminBreadcrumb">Statistics</span></p>
+            <h1 id="adminPageTitle">Statistics &amp; orders</h1>
+            <p class="admin-page-subtitle">Revenue, order activity, and recent history at a glance.</p>
+          </div>
+          <div class="admin-header-actions">
+            <label class="admin-period-label" for="statsPeriod">Period</label>
+            <select id="statsPeriod" class="admin-period">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="all">All time</option>
+            </select>
+            <button id="refreshOrdersBtn" type="button">Refresh</button>
+          </div>
+        </div>
 
-    <div id="adminDashboard" style="margin-top:10px;">
-      <table id="ordersTable" style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>სერვისი</th>
-            <th>სახელი გვარი</th>
-            <th>ტელეფონი</th>
-            <th>მისამართი</th>
-            <th>ფასი</th>
-            <th>აღწერა</th>
-            <th>დრო</th>
-            <th>სტატუსი</th>
-            <th>მოქმედება</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+        <p id="adminLoadError" class="admin-load-error" role="alert" hidden></p>
+
+        <div id="adminStatsView" class="admin-view">
+          <div class="admin-stat-cards">
+            <article class="admin-stat-card">
+              <span class="admin-stat-label">Total revenue</span>
+              <strong id="totalRevenue" class="admin-stat-value">₾ 0</strong>
+              <span class="admin-stat-note">Excludes cancelled orders</span>
+            </article>
+            <article class="admin-stat-card">
+              <span class="admin-stat-label">Total orders</span>
+              <strong id="totalOrdersCount" class="admin-stat-value">0</strong>
+              <span id="orderPeriodNote" class="admin-stat-note">In selected period</span>
+            </article>
+            <article class="admin-stat-card">
+              <span class="admin-stat-label">Average order value</span>
+              <strong id="averageOrderValue" class="admin-stat-value">₾ 0</strong>
+              <span class="admin-stat-note">Excludes cancelled orders</span>
+            </article>
+            <article class="admin-stat-card">
+              <span class="admin-stat-label">Pending orders</span>
+              <strong id="pendingOrdersCount" class="admin-stat-value">0</strong>
+              <span class="admin-stat-note">Awaiting completion</span>
+            </article>
+          </div>
+
+          <div class="admin-insights-grid">
+            <section class="admin-card admin-chart-card">
+              <div class="admin-card-heading">
+                <div>
+                  <h2>Revenue &amp; order trend</h2>
+                  <p>Daily totals for selected periods; all-time is grouped for readability</p>
+                </div>
+                <div class="admin-chart-legend">
+                  <span><i class="legend-dot revenue-dot"></i>Revenue</span>
+                  <span><i class="legend-dot orders-dot"></i>Orders</span>
+                  <span><i class="legend-dot trend-dot"></i>High / low trend</span>
+                </div>
+              </div>
+              <div id="adminTrendChart" class="admin-trend-chart" role="img" aria-label="Revenue and order trend chart"></div>
+            </section>
+
+            <section class="admin-card admin-status-card">
+              <div class="admin-card-heading">
+                <div>
+                  <h2>Order status</h2>
+                  <p>Breakdown in the selected period</p>
+                </div>
+              </div>
+              <div id="adminStatusBreakdown"></div>
+            </section>
+          </div>
+
+          <section class="admin-card admin-history-card">
+            <div class="admin-card-heading">
+              <div>
+                <h2>Recent order history</h2>
+                <p>Latest orders and their current status</p>
+              </div>
+              <button type="button" class="admin-text-button" data-admin-view="orders">All orders →</button>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-history-table">
+                <thead>
+                  <tr><th>ORDER</th><th>CUSTOMER</th><th>SERVICE</th><th>DATE</th><th>AMOUNT</th><th>STATUS</th></tr>
+                </thead>
+                <tbody id="recentOrdersTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <div id="adminOrdersView" class="admin-view" hidden>
+          <section class="admin-card admin-orders-card">
+            <div class="admin-card-heading">
+              <div>
+                <h2>Order management</h2>
+                <p>Review order details or remove an order from the history.</p>
+              </div>
+            </div>
+            <div id="adminDashboard">
+              <table id="ordersTable">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>სერვისი</th>
+                    <th>სახელი გვარი</th>
+                    <th>ტელეფონი</th>
+                    <th>მისამართი</th>
+                    <th>ფასი</th>
+                    <th>აღწერა</th>
+                    <th>დრო</th>
+                    <th>სტატუსი</th>
+                    <th>მოქმედება</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
   </section>
 
