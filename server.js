@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
@@ -187,7 +187,6 @@ app.patch('/api/orders/:id/status', async (req, res) => {
 
     order.status = status;
     await saveOrders(orders);
-
     res.json({ success: true, data: order });
   } catch (err) {
     console.error(`PATCH /api/orders/${id}/status error:`, err);
@@ -250,35 +249,6 @@ app.post('/api/telegram-webhook', async (req, res) => {
   }
 
   res.sendStatus(200);
-});
-
-app.delete('/api/orders/:id', async (req, res) => {
-  const { id } = req.params;
-  if (!id) return sendError(res, 400, 'Order ID is required');
-
-  try {
-    const orders = await loadOrders();
-    const existing = orders.find((order) => order.id === id);
-    if (!existing) return sendError(res, 404, 'Order not found');
-
-    const filtered = orders.filter((order) => order.id !== id);
-    await saveOrders(filtered);
-
-    res.json({ success: true, message: `Order ${id} deleted` });
-  } catch (err) {
-    console.error('DELETE /api/orders/:id error:', err);
-    sendError(res, 500, 'Failed to delete order');
-  }
-});
-
-app.delete('/api/orders', async (req, res) => {
-  try {
-    await saveOrders([]);
-    res.json({ success: true, message: 'All orders deleted' });
-  } catch (err) {
-    console.error('DELETE /api/orders error:', err);
-    sendError(res, 500, 'Failed to delete all orders');
-  }
 });
 
 app.use((req, res) => {

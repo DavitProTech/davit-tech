@@ -12,7 +12,7 @@ A complete order management system with customer-facing frontend and backend ser
 
 ### Admin Features
 - **Order Management**: View all submitted orders in a dashboard
-- **Order Deletion**: Remove orders from the system
+- **Order Retention**: Orders cannot be permanently deleted; cancelled orders remain available
 - **Password Protected**: Admin login with username and password
 - **Persistent Storage**: All orders saved on the server
 
@@ -25,7 +25,7 @@ davit-tech-main/
 ├── script.js           # Client-side logic with API integration
 ├── server.js           # Express backend server
 ├── package.json        # Node.js dependencies
-├── orders.json         # Order database (auto-created)
+├── orders.json         # Local-development order file
 └── images/             # Service images
 ```
 
@@ -112,13 +112,7 @@ the server log; order creation remains successful if Telegram is unavailable.
 - Body: `{ status: "confirm" | "ontheway" | "cancel" }`
 - Response: `{ success: boolean, data: Order }`
 
-**DELETE /api/orders/:id**
-- Delete a specific order by ID
-- Response: `{ success: boolean, message: string }`
-
-**DELETE /api/orders**
-- Clear all orders
-- Response: `{ success: boolean, message: string }`
+Orders are intentionally not deletable through the API. Cancelling an order changes its status without removing its record.
 
 ## Order Data Structure
 
@@ -148,9 +142,11 @@ the server log; order creation remains successful if Telegram is unavailable.
 
 ## File Storage
 
-Orders are persisted in `orders.json` file on the server. The file is automatically created on first startup if it doesn't exist.
+Orders are persisted in the `orders.json` file on the server. The file is
+automatically created on first startup if it doesn't exist. On hosting platforms
+with ephemeral filesystems, file changes may not survive restarts or redeploys.
 
-To backup orders:
+To back up orders in a local deployment:
 ```bash
 cp orders.json orders.backup.json
 ```
@@ -183,6 +179,7 @@ The server is configured with CORS enabled to allow requests from the front-end 
 
 **Orders not persisting**
 - Check write permissions for the project directory
+- Check whether the hosting platform uses an ephemeral filesystem
 - Verify `orders.json` file exists
 
 **CORS errors**

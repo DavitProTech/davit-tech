@@ -547,7 +547,6 @@ function getAdminErrorMessage(error, fallback) {
     "Failed to update order status": "შეკვეთის სტატუსის განახლება ვერ მოხერხდა.",
     "Order not found": "შეკვეთა ვერ მოიძებნა.",
     "Invalid order status": "შეკვეთის სტატუსი არასწორია.",
-    "Failed to delete order": "შეკვეთის წაშლა ვერ მოხერხდა.",
     "Unknown error": "დაფიქსირდა უცნობი შეცდომა."
   };
   return messages[error?.message] || fallback;
@@ -644,12 +643,6 @@ async function loadOrders() {
       currentStatus.textContent = `მიმდინარე სტატუსი: ${getStatusLabel(order)}`;
       statusActions.appendChild(currentStatus);
 
-      const deleteButton = document.createElement("button");
-      deleteButton.type = "button";
-      deleteButton.className = "admin-order-delete-button";
-      deleteButton.textContent = "წაშლა";
-      deleteButton.addEventListener("click", () => window.deleteOrder(order.id));
-      statusActions.appendChild(deleteButton);
       actionCell.appendChild(statusActions);
     });
     clearAdminError();
@@ -708,22 +701,6 @@ document.getElementById("confirmCancelOrderButton")?.addEventListener("click", (
 document.getElementById("cancelOrderDialog")?.addEventListener("close", () => {
   pendingCancellationOrderId = null;
 });
-
-window.deleteOrder = async (orderId) => {
-  try {
-    const response = await fetch(`${API_URL}/api/orders/${encodeURIComponent(orderId)}`, {
-      method: "DELETE"
-    });
-    const result = await response.json();
-    if (!response.ok || !result.success) {
-      throw new Error(result.message || "Unknown error");
-    }
-    await loadOrders();
-  } catch (error) {
-    console.error(`Error deleting order ${orderId}:`, error);
-    showAdminError(`${getAdminErrorMessage(error, "შეკვეთის წაშლა ვერ მოხერხდა.")} (შეკვეთა ${orderId})`);
-  }
-};
 
 document.getElementById("refreshOrdersBtn")?.addEventListener("click", loadOrders);
 document.querySelectorAll("[data-admin-view]").forEach((button) => {
